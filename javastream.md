@@ -1,63 +1,118 @@
 # Java Stream
+
 ## Stream
+
 map reduce 연산 대상
 
 ### Stream 특징
+
 Read Only
+
 Can’t be Reused
+
 Lazy Invocation (terminal operation 처리시 수행)
 
 ### Stream 종류
+
 Stream<T> // 참조형 Stream
+
 IntStream, LongStream, DoubleStream // 기본 자료형 Stream, 성능 이점 및 관련 연산자
 
+
 ### Stream 병렬 처리
+
 stream.parallel() // 병렬 처리, 순서 보장X
+
 stream.sequential() // default, 직렬 처리
 
+
 ### Stream 생성 방법
+
 Stream.of(…)
+
 Stream.iterate(0, n -> n + 1) // 무한 스트림 생성
+
 Stream.generate(Math::random) // 무한 스트림 생성
+
 Array.stream(T[] array) // 기본형 스트림 생성 가능
+
 list.stream()
+
 new Random().ints() // 유/무한 스트림 생성 가능
+
 IntStream.range(1, 3) // 1, 2
+
 IntStream.rangeClosed(1, 3) // 1, 2, 3
+
 Files.list(Path dir) // 파일/디렉토리 목록
+
 Files.lines(Path path) // 파일 내용
+
 Stream.empty() // 빈 스트림
+
+
 
 ---
 
+
+
 ## Stream 연산
+
 intermediate : filter, distinct, sort, limit, …
+
 terminal : forEach, reduce, …
 
+
+
 ### Stream pipeline
+
 intermediate stream 연산의 결과가 stream 여러번 반복적으로 연산 수행 가능
+
 terminal 연산 수행은 단 한번만 가능. 수행 후에는 stream 재사용 불가
 
+
+
 ### Stream Intermediate 연산
+
 distinct() // 중복 제거
+
 filter(Predicate) // 조건 필터링
+
+
 limit(long) // 자르기
+
 skip(long) // 앞에 제외
+
 peek(Consumer) // 사용만하기
+
 sorted() // 정렬
+
 sorted(Comparator) / 기준 추가 정렬
+
 map(Function) // 변환
+
 mapToDouble(ToDoubleFunction) // 변환 결과가 DoubleStream
+
 mapToInt(ToIntFunction) // 변환 결과가 IntStream
+
 mapToLong(ToLongFunction) // 변환 결과가 LongStream
+
   ex) map(i -> 1) // Stream<Integer>
+
          mapToInt(i -> 1) // 기본형 스트림 IntStream 으로 변환
+
 flatMap(Function<T, Stream<R>>) // 변환, 변환 결과가 stream의 stream일 때 평탄화
+
 flatMapToDouble()
+
 flatMapToInt()
+
 flatMapToLong()
 
+
+
 ### Stream Terminal 연산
+
 forEach(Consumer) // 반복 처리
 forEachOrdered(Consumer) // 반복 처리, 순서 유지
 count() // 개수
@@ -176,4 +231,6 @@ Collector partitioningBy(Predicate, Collector) // Collector 결과에 따라 val
 Collector groupingBy(Function classifier) // Map<T, List> 로 분리
 Collector groupingBy(Function classifier, Collector downStream)
 Collector groupingBy(Function classifier, Supplier mapFactory, Collector downStream)
+
+
 
