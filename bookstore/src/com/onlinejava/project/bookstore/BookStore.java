@@ -2,7 +2,6 @@ package com.onlinejava.project.bookstore;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.Scanner;
 import java.util.stream.IntStream;
 
@@ -50,12 +49,13 @@ public class BookStore {
         String command = scanner.nextLine().trim();
         switch (command) {
             case "1":
-                printBookList();
+                printBookList(getBookList());
                 break;
             case "2":
                 System.out.print("Search Keyword:");
                 String keyword = scanner.nextLine();
-                searchBook(keyword);
+                printBookList(searchBook(keyword));
+
                 break;
             case "3":
                 System.out.printf("Type title:");
@@ -113,20 +113,18 @@ public class BookStore {
         getBookList().add(newBook);
     }
 
-    private void searchBook(String keyword) {
-        printTableLine();
-        printHeader();
-        getBookList().stream()
+    private List<Book> searchBook(String keyword) {
+        List<Book> bookList = getBookList().stream()
                 .filter(book -> book.getTitle().contains(keyword))
-                .forEach(this::printTable);
-        printTableLine();
+                .toList();
+        return bookList;
     }
 
-    private void printBookList() {
-        printHeader();
-        getBookList().forEach(this::printTable);
+    private void printBookList(List<Book> bookList) {
         printTableLine();
-
+        printHeader();
+        bookList.forEach(this::printTable);
+        printTableLine();
     }
 
     private void printHeader() {
