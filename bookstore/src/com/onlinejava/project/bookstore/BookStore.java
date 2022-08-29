@@ -1,6 +1,7 @@
 package com.onlinejava.project.bookstore;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Scanner;
 import java.util.stream.IntStream;
@@ -9,7 +10,10 @@ public class BookStore {
 
 
     private List<Book> bookList;
+    private List<Purchase> purchaseList;
+
     {
+        purchaseList = new ArrayList<>();
         bookList = new ArrayList<>();
         bookList.add(new Book("홍길동", "작자미상", "조선사", 10000, "01/01/1500", "2층 10번"));
         bookList.add(new Book("홍길동1", "작자미상", "조선사", 10000, "01/01/1500", "2층 10번"));
@@ -36,6 +40,10 @@ public class BookStore {
         System.out.println("=            |     3. Add new book              |                    =");
         System.out.println("=            |                                  |                    =");
         System.out.println("=            |     4. Delete a book             |                    =");
+        System.out.println("=            |                                  |                    =");
+        System.out.println("=            |     5. buy a book                |                    =");
+        System.out.println("=            |                                  |                    =");
+        System.out.println("=            |     6. Print purchase list       |                    =");
         System.out.println("=            |                                  |                    =");
         System.out.println("=            |     q. Quit                      |                    =");
         System.out.println("=            |                                  |                    =");
@@ -84,6 +92,16 @@ public class BookStore {
                 String deletingTitle = scanner.nextLine().trim();
                 deleteBook(deletingTitle);
                 break;
+            case "5":
+                System.out.printf("Type title:");
+                String titleToBuy = scanner.nextLine().trim();
+                System.out.printf("Type customer:");
+                String customer = scanner.nextLine().trim();
+                buyBook(titleToBuy, customer);
+                break;
+            case "6":
+                printPurchaseList();
+                break;
             case "q":
                 System.exit(0);
                 break;
@@ -94,15 +112,27 @@ public class BookStore {
         scanner.nextLine();
     }
 
-    private void deleteBook(String deletingTitle) {
-//        List<Book> list = getBookList();
-//        for (int i = 0; i < list.size(); i++) {
-//            if (list.get(i).getTitle().equals(deletingTitle)) {
-//                list.remove(i);
-//                return;
-//            }
-//        }
+    private void printPurchaseList() {
+        getPurchaseList().stream()
+                .forEach(System.out::println);
+    }
 
+    private void buyBook(String titleToBuy, String customer) {
+        getBookList().stream()
+                .filter(book -> book.getTitle().equals(titleToBuy))
+                .filter(book -> book.getStock() > 0)
+                .forEach(book -> {
+                    book.setStock(book.getStock() - 1);
+                    Purchase purchase = new Purchase(titleToBuy, customer, 1);
+                    getPurchaseList().add(purchase);
+                });
+    }
+
+    private List<Purchase> getPurchaseList() {
+        return this.purchaseList;
+    }
+
+    private void deleteBook(String deletingTitle) {
         getBookList().stream()
                 .filter(book -> book.getTitle().equals(deletingTitle))
                 .findFirst()
@@ -129,12 +159,14 @@ public class BookStore {
 
     private void printHeader() {
         printTableLine();
-        System.out.printf("| %-10s \t | %-10s \t | %-10s \t | %-10s \t |\n", "TITLE", "WRITER", "PRICE", "LOCATION");
+        System.out.printf("| %-10s \t | %-10s \t | %-10s \t | %-10s \t | %-10s \t |\n",
+                "TITLE", "WRITER", "PRICE", "LOCATION", "STOCK");
     }
 
     private void printTable(Book book) {
         printTableLine();
-        System.out.printf("| %-10s \t | %-10s \t | %-10d \t | %-10s \t |\n", book.getTitle(), book.getWriter(), book.getPrice(), book.getLocation());
+        System.out.printf("| %-10s \t | %-10s \t | %-10d \t | %-10s \t | %-10d \t |\n",
+                book.getTitle(), book.getWriter(), book.getPrice(), book.getLocation(), book.getStock());
     }
 
     private void printTableLine() {

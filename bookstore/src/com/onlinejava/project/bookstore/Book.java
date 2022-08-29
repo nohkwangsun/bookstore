@@ -7,14 +7,28 @@ public class Book {
     private int price;
     private String releaseDate;
     private String location;
+    private int stock;
+
+    public int getStock() {
+        return stock;
+    }
+
+    public void setStock(int stock) {
+        this.stock = stock;
+    }
 
     public Book(String title, String writer, String publisher, int price, String releaseDate, String location) {
+        this(title, writer, publisher, price, releaseDate, location, 1);
+    }
+
+    public Book(String title, String writer, String publisher, int price, String releaseDate, String location, int stock) {
         this.title = title;
         this.writer = writer;
         this.publisher = publisher;
         this.price = price;
         this.releaseDate = releaseDate;
         this.location = location;
+        this.stock = stock;
     }
 
     @Override
