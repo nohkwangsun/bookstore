@@ -1,9 +1,10 @@
 package com.onlinejava.project.bookstore;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
-import java.util.Scanner;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class BookStore {
@@ -15,9 +16,17 @@ public class BookStore {
     {
         purchaseList = new ArrayList<>();
         bookList = new ArrayList<>();
-        bookList.add(new Book("홍길동", "작자미상", "조선사", 10000, "01/01/1500", "2층 10번"));
-        bookList.add(new Book("홍길동1", "작자미상", "조선사", 10000, "01/01/1500", "2층 10번"));
-        bookList.add(new Book("홍길동2", "작자미상", "조선사", 10000, "01/01/1500", "2층 10번"));
+
+        try {
+            bookList = Files.lines(Path.of("booklist.csv"))
+                .map(line -> {
+                    List<String> book = Arrays.stream(line.split(",")).map(String::trim).toList();
+                    return new Book(book.get(0), book.get(1), book.get(2), Integer.parseInt(book.get(3)), book.get(4), book.get(5));
+                }).collect(Collectors.toList());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
     public void printWelcomePage() {
