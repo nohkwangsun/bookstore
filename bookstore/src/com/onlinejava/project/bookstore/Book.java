@@ -40,6 +40,7 @@ public class Book {
                 ", price=" + price +
                 ", releaseDate='" + releaseDate + '\'' +
                 ", location='" + location + '\'' +
+                ", stock=" + stock +
                 '}';
     }
 
@@ -89,5 +90,9 @@ public class Book {
 
     public void setLocation(String location) {
         this.location = location;
+    }
+
+    public void addStock(int stock) {
+        this.setStock(this.getStock() + stock);
     }
 }
