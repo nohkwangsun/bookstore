@@ -43,6 +43,8 @@ public class BookStore {
         System.out.println("=            |                                  |                    =");
         System.out.println("=            |     5. buy a book                |                    =");
         System.out.println("=            |                                  |                    =");
+        System.out.println("=            |     6. Print purchase list       |                    =");
+        System.out.println("=            |                                  |                    =");
         System.out.println("=            |     q. Quit                      |                    =");
         System.out.println("=            |                                  |                    =");
         System.out.println("=            ------------------------------------                    =");
@@ -96,6 +98,9 @@ public class BookStore {
                 String customer = scanner.nextLine().trim();
                 buyBook(titleToBuy, customer);
                 break;
+            case "6":
+                printPurchaseList();
+                break;
             case "q":
                 System.exit(0);
                 break;
@@ -106,17 +111,20 @@ public class BookStore {
         scanner.nextLine();
     }
 
+    private void printPurchaseList() {
+        getPurchaseList().stream()
+                .forEach(System.out::println);
+    }
+
     private void buyBook(String titleToBuy, String customer) {
         getBookList().stream()
                 .filter(book -> book.getTitle().equals(titleToBuy))
+                .filter(book -> book.getStock() > 0)
                 .forEach(book -> {
                     book.setStock(book.getStock() - 1);
                     Purchase purchase = new Purchase(titleToBuy, customer, 1);
                     getPurchaseList().add(purchase);
                 });
-
-        // TODO: 2. 재고 체크
-        // TODO: 3. 이력 출력
     }
 
     private List<Purchase> getPurchaseList() {
