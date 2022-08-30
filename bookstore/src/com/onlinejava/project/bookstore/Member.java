@@ -4,11 +4,13 @@ public class Member {
     private String userName;
     private String email;
     private String address;
+    private boolean active;
 
     public Member(String userName, String email, String address) {
         this.userName = userName;
         this.email = email;
         this.address = address;
+        this.active = true;
     }
 
     @Override
@@ -17,6 +19,7 @@ public class Member {
                 "userName='" + userName + '\'' +
                 ", email='" + email + '\'' +
                 ", address='" + address + '\'' +
+                ", active='" + active + '\'' +
                 '}';
     }
 
@@ -42,5 +45,13 @@ public class Member {
 
     public void setAddress(String address) {
         this.address = address;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 }
