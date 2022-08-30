@@ -143,7 +143,16 @@ public class BookStore {
             case "9":
                 System.out.printf("Type user name:");
                 String userName = scanner.nextLine().trim();
-                withdrawMember(userName);
+                System.out.printf("Type email:");
+                String email = scanner.nextLine().trim();
+                System.out.printf("Type address:");
+                String address = scanner.nextLine().trim();
+                addMember(userName, email, address);
+                break;
+            case "10":
+                System.out.printf("Type user name:");
+                String userNameToWithdraw = scanner.nextLine().trim();
+                withdrawMember(userNameToWithdraw);
                 break;
             case "q":
                 System.exit(0);
