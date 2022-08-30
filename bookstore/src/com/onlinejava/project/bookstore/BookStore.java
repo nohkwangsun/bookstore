@@ -69,6 +69,8 @@ public class BookStore {
         System.out.println("=            |                                  |                    =");
         System.out.println("=            |     8. Print member list         |                    =");
         System.out.println("=            |                                  |                    =");
+        System.out.println("=            |     9. Add new member            |                    =");
+        System.out.println("=            |                                  |                    =");
         System.out.println("=            |     q. Quit                      |                    =");
         System.out.println("=            |                                  |                    =");
         System.out.println("=            ------------------------------------                    =");
@@ -136,6 +138,15 @@ public class BookStore {
             case "8":
                 printMemberList();
                 break;
+            case "9":
+                System.out.printf("Type user name:");
+                String userName = scanner.nextLine().trim();
+                System.out.printf("Type email:");
+                String email = scanner.nextLine().trim();
+                System.out.printf("Type address:");
+                String address = scanner.nextLine().trim();
+                addMember(userName, email, address);
+                break;
             case "q":
                 System.exit(0);
                 break;
@@ -144,6 +155,10 @@ public class BookStore {
         }
         System.out.println("Press enter for the menu...");
         scanner.nextLine();
+    }
+
+    private void addMember(String userName, String email, String address) {
+        getMemberList().add(new Member(userName, email, address));
     }
 
     private void printMemberList() {
