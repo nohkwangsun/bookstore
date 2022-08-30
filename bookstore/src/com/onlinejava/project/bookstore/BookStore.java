@@ -12,11 +12,9 @@ public class BookStore {
 
     private List<Book> bookList;
     private List<Purchase> purchaseList;
+    private List<Member> memberList;
 
     {
-        purchaseList = new ArrayList<>();
-        bookList = new ArrayList<>();
-
         try {
             bookList = Files.lines(Path.of("booklist.csv"))
                 .map(line -> {
@@ -29,6 +27,13 @@ public class BookStore {
                         List<String> purchase = Arrays.stream(line.split(",")).map(String::trim).toList();
                         return new Purchase(purchase.get(0), purchase.get(1), Integer.parseInt(purchase.get(2)));
                     }).collect(Collectors.toList());
+
+            memberList = Files.lines(Path.of("memberlist.csv"))
+                    .map(line -> {
+                        List<String> member = Arrays.stream(line.split(",")).map(String::trim).toList();
+                        return new Member(member.get(0), member.get(1), member.get(2));
+                    }).collect(Collectors.toList());
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -61,6 +66,8 @@ public class BookStore {
         System.out.println("=            |     6. Print purchase list       |                    =");
         System.out.println("=            |                                  |                    =");
         System.out.println("=            |     7. Add book stock            |                    =");
+        System.out.println("=            |                                  |                    =");
+        System.out.println("=            |     8. Print member list         |                    =");
         System.out.println("=            |                                  |                    =");
         System.out.println("=            |     q. Quit                      |                    =");
         System.out.println("=            |                                  |                    =");
@@ -126,6 +133,9 @@ public class BookStore {
                 int stock = Integer.parseInt(scanner.nextLine().trim());
                 addStock(titleToAddStock, stock);
                 break;
+            case "8":
+                printMemberList();
+                break;
             case "q":
                 System.exit(0);
                 break;
@@ -134,6 +144,15 @@ public class BookStore {
         }
         System.out.println("Press enter for the menu...");
         scanner.nextLine();
+    }
+
+    private void printMemberList() {
+        getMemberList().stream()
+                .forEach(System.out::println);
+    }
+
+    private List<Member> getMemberList() {
+        return this.memberList;
     }
 
     private void addStock(String titleToAddStock, int stock) {
