@@ -71,6 +71,8 @@ public class BookStore {
         System.out.println("=            |                                  |                    =");
         System.out.println("=            |     9. Add new member            |                    =");
         System.out.println("=            |                                  |                    =");
+        System.out.println("=            |    10. Withdraw a member         |                    =");
+        System.out.println("=            |                                  |                    =");
         System.out.println("=            |     q. Quit                      |                    =");
         System.out.println("=            |                                  |                    =");
         System.out.println("=            ------------------------------------                    =");
@@ -147,6 +149,11 @@ public class BookStore {
                 String address = scanner.nextLine().trim();
                 addMember(userName, email, address);
                 break;
+            case "10":
+                System.out.printf("Type user name:");
+                String userNameToWithdraw = scanner.nextLine().trim();
+                withdrawMember(userNameToWithdraw);
+                break;
             case "q":
                 System.exit(0);
                 break;
@@ -157,18 +164,29 @@ public class BookStore {
         scanner.nextLine();
     }
 
+    private void withdrawMember(String userName) {
+        getMemberList().stream()
+                .filter(member -> member.getUserName().equals(userName))
+                .forEach(member -> member.setActive(false));
+    }
+
     private void addMember(String userName, String email, String address) {
         getMemberList().add(new Member(userName, email, address));
     }
 
     private void printMemberList() {
-        getMemberList().stream()
+        getActiveMemberList().stream()
                 .forEach(System.out::println);
     }
 
     private List<Member> getMemberList() {
         return this.memberList;
     }
+
+    private List<Member> getActiveMemberList() {
+        return getMemberList().stream().filter(member -> member.isActive()).collect(Collectors.toUnmodifiableList());
+    }
+
 
     private void addStock(String titleToAddStock, int stock) {
         getBookList().stream()
