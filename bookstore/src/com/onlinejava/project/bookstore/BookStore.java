@@ -73,6 +73,8 @@ public class BookStore {
         System.out.println("=            |                                  |                    =");
         System.out.println("=            |    10. Withdraw a member         |                    =");
         System.out.println("=            |                                  |                    =");
+        System.out.println("=            |    11. Modify a member           |                    =");
+        System.out.println("=            |                                  |                    =");
         System.out.println("=            |     q. Quit                      |                    =");
         System.out.println("=            |                                  |                    =");
         System.out.println("=            ------------------------------------                    =");
@@ -154,6 +156,19 @@ public class BookStore {
                 String userNameToWithdraw = scanner.nextLine().trim();
                 withdrawMember(userNameToWithdraw);
                 break;
+            case "11":
+                System.out.printf("Type user name:");
+                String userNameToModify = scanner.nextLine().trim();
+                getMemberByUserName(userNameToModify).ifPresent(member -> {
+                    System.out.printf("Type new user name [default:%s] :", member.getUserName());
+                    String newUserName = scanner.nextLine().trim();
+                    System.out.printf("Type email [default:%s] :", member.getEmail());
+                    String newEmail = scanner.nextLine().trim();
+                    System.out.printf("Type address [default:%s] :", member.getAddress());
+                    String newAddress = scanner.nextLine().trim();
+                    modifyMember(userNameToModify, new Member(newUserName, newEmail, newAddress));
+                });
+                break;
             case "q":
                 System.exit(0);
                 break;
@@ -162,6 +177,30 @@ public class BookStore {
         }
         System.out.println("Press enter for the menu...");
         scanner.nextLine();
+    }
+
+    private void modifyMember(String userNameToModify, Member member) {
+        getMemberList().stream()
+                .filter(exMember -> exMember.getUserName().equals(userNameToModify))
+                .forEach(exMember -> {
+                    if (!member.getUserName().isBlank()) {
+                        exMember.setUserName(member.getUserName());
+                    }
+
+                    if (!member.getEmail().isBlank()) {
+                        exMember.setEmail(member.getEmail());
+                    }
+
+                    if (!member.getAddress().isBlank()) {
+                        exMember.setAddress(member.getAddress());
+                    }
+                });
+    }
+
+    private Optional<Member> getMemberByUserName(String userNameToModify) {
+        return getMemberList().stream()
+                    .filter(member -> member.getUserName().equals(userNameToModify))
+                    .findFirst();
     }
 
     private void withdrawMember(String userName) {
