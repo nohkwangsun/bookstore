@@ -77,6 +77,8 @@ public class BookStore {
         System.out.println("=            |                                  |                    =");
         System.out.println("=            |    11. Modify a member           |                    =");
         System.out.println("=            |                                  |                    =");
+        System.out.println("=            |    12. Print a user's purchases  |                    =");
+        System.out.println("=            |                                  |                    =");
         System.out.println("=            |     s. Save                      |                    =");
         System.out.println("=            |                                  |                    =");
         System.out.println("=            |     q. Quit                      |                    =");
@@ -173,6 +175,11 @@ public class BookStore {
                     modifyMember(userNameToModify, new Member(newUserName, newEmail, newAddress));
                 });
                 break;
+            case "12":
+                System.out.printf("Type user name:");
+                String userNameToPrintPurchases = scanner.nextLine().trim();
+                printPurchaseListByUser(userNameToPrintPurchases);
+                break;
             case "s":
                 saveAsFile();
                 break;
@@ -184,6 +191,12 @@ public class BookStore {
         }
         System.out.println("Press enter for the menu...");
         scanner.nextLine();
+    }
+
+    private void printPurchaseListByUser(String userName) {
+        getPurchaseList().stream()
+                .filter(purchase -> purchase.getCustomer().equals(userName))
+                .forEach(System.out::println);
     }
 
     private void saveAsFile() {
