@@ -20,4 +20,8 @@ public class Purchase {
         this.customer = customer;
         this.numberOfPurchase = numberOfPurchase;
     }
+
+    public String toCsvString() {
+        return String.join(", ", title, customer, String.valueOf(numberOfPurchase));
+    }
 }

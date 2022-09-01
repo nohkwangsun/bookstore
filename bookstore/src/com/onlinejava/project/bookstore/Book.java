@@ -95,4 +95,8 @@ public class Book {
     public void addStock(int stock) {
         this.setStock(this.getStock() + stock);
     }
+
+    public String toCsvString() {
+        return String.join(", ", title, writer, publisher, String.valueOf(price), releaseDate, location, String.valueOf(stock));
+    }
 }

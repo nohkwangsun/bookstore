@@ -3,6 +3,8 @@ package com.onlinejava.project.bookstore;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -74,6 +76,8 @@ public class BookStore {
         System.out.println("=            |    10. Withdraw a member         |                    =");
         System.out.println("=            |                                  |                    =");
         System.out.println("=            |    11. Modify a member           |                    =");
+        System.out.println("=            |                                  |                    =");
+        System.out.println("=            |     s. Save                      |                    =");
         System.out.println("=            |                                  |                    =");
         System.out.println("=            |     q. Quit                      |                    =");
         System.out.println("=            |                                  |                    =");
@@ -169,6 +173,9 @@ public class BookStore {
                     modifyMember(userNameToModify, new Member(newUserName, newEmail, newAddress));
                 });
                 break;
+            case "s":
+                saveAsFile();
+                break;
             case "q":
                 System.exit(0);
                 break;
@@ -177,6 +184,58 @@ public class BookStore {
         }
         System.out.println("Press enter for the menu...");
         scanner.nextLine();
+    }
+
+    private void saveAsFile() {
+        try {
+            File tmpFile = new File("memberlist.csv.tmp");
+            tmpFile.createNewFile();
+            getMemberList().forEach(member -> {
+                try {
+                    Files.writeString(Path.of("memberlist.csv.tmp"), member.toCsvString() + "\n", StandardOpenOption.APPEND);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+            Files.move(Path.of("memberlist.csv.tmp"), Path.of("memberlist.csv"), StandardCopyOption.REPLACE_EXISTING);
+            tmpFile.delete();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+
+        try {
+            File bookTmpFile = new File("booklist.csv.tmp");
+            bookTmpFile.createNewFile();
+            getBookList().forEach(book -> {
+                try {
+                    Files.writeString(Path.of("booklist.csv.tmp"), book.toCsvString() + "\n", StandardOpenOption.APPEND);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+            Files.move(Path.of("booklist.csv.tmp"), Path.of("booklist.csv"), StandardCopyOption.REPLACE_EXISTING);
+            bookTmpFile.delete();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+
+        try {
+            File purchaseTmpFile = new File("purchaselist.csv.tmp");
+            purchaseTmpFile.createNewFile();
+            getPurchaseList().forEach(purchase -> {
+                try {
+                    Files.writeString(Path.of("purchaselist.csv.tmp"), purchase.toCsvString() + "\n", StandardOpenOption.APPEND);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+            Files.move(Path.of("purchaselist.csv.tmp"), Path.of("purchaselist.csv"), StandardCopyOption.REPLACE_EXISTING);
+            purchaseTmpFile.delete();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void modifyMember(String userNameToModify, Member member) {

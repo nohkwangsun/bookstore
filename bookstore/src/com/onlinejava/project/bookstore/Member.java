@@ -54,4 +54,8 @@ public class Member {
     public void setActive(boolean active) {
         this.active = active;
     }
+
+    public String toCsvString() {
+        return String.join(", ", userName, email, address, String.valueOf(active));
+    }
 }
