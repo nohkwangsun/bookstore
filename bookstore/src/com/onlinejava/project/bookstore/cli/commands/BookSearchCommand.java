@@ -1,6 +1,8 @@
-package com.onlinejava.project.bookstore.clicommands;
+package com.onlinejava.project.bookstore.cli.commands;
 
-public class BookSearchCommand implements CliCommand {
+import com.onlinejava.project.bookstore.cli.CliCommandInterface;
+
+public class BookSearchCommand implements CliCommandInterface {
     @Override
     public String getCommandID() {
         return "2";

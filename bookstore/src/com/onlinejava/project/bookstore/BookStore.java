@@ -1,6 +1,7 @@
 package com.onlinejava.project.bookstore;
 
-import com.onlinejava.project.bookstore.clicommands.CliCommand;
+import com.onlinejava.project.bookstore.cli.CliCommandInterface;
+import com.onlinejava.project.bookstore.cli.CliCommand;
 
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
@@ -13,6 +14,7 @@ import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 public class BookStore {
 
@@ -20,7 +22,7 @@ public class BookStore {
     private List<Book> bookList;
     private List<Purchase> purchaseList;
     private List<Member> memberList;
-    private Map<String, CliCommand> commands;
+    private Map<String, CliCommandInterface> commands;
 
     {
         try {
@@ -45,13 +47,13 @@ public class BookStore {
             e.printStackTrace();
         }
 
-        String commandPackage = "com.onlinejava.project.bookstore.clicommands";
+        String commandPackage = "com.onlinejava.project.bookstore.cli.commands";
         try (
                 InputStream resourceIStream = ClassLoader.getSystemClassLoader().getResourceAsStream(commandPackage.replaceAll("[.]", "/"));
                 InputStreamReader resourceISR = new InputStreamReader(resourceIStream);
                 BufferedReader resourceReader = new BufferedReader(resourceISR);
         ) {
-            commands = resourceReader.lines()
+            List<Class> classesInPackage = resourceReader.lines()
                     .filter(line -> line.endsWith(".class"))
                     .map(line -> {
                         try {
@@ -60,19 +62,58 @@ public class BookStore {
                         } catch (ClassNotFoundException e) {
                             throw new RuntimeException(e);
                         }
-                    })
-                    .filter(clazz -> CliCommand.class.isAssignableFrom(clazz))
+                    }).collect(Collectors.toUnmodifiableList());
+
+            Stream<CliCommandInterface> cliCommandInterfaceStream = classesInPackage.stream()
+                    .filter(clazz -> CliCommandInterface.class.isAssignableFrom(clazz))
                     .filter(clazz -> !clazz.isInterface())
                     .map(clazz -> {
                         try {
-                            return (CliCommand) clazz.getDeclaredConstructor().newInstance();
+                            return (CliCommandInterface) clazz.getDeclaredConstructor().newInstance();
                         } catch (InstantiationException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
                             throw new RuntimeException(e);
                         }
-                    })
-                    .collect(Collectors.toMap(CliCommand::getCommandID, Function.identity()));
+                    });
+            Stream<CliCommandInterface> annotatedCommandStream = classesInPackage.stream()
+                    .filter(clazz -> clazz.isAnnotationPresent(CliCommand.class))
+                    .flatMap(clazz -> Arrays.stream(clazz.getDeclaredMethods()))
+                    .filter(method -> method.isAnnotationPresent(CliCommand.class))
+                    .filter(method -> method.getParameterCount() == 0)
+                    .map(method -> {
+                        CliCommand classCommand = method.getClass().getDeclaredAnnotation(CliCommand.class);
+                        CliCommand methodCommand = method.getDeclaredAnnotation(CliCommand.class);
+                        return new CliCommandInterface() {
+                            @Override
+                            public String getCommandID() {
+                                return methodCommand.ID().isBlank() ? classCommand.ID() : methodCommand.ID();
+                            }
 
-            } catch (IOException e) {
+                            @Override
+                            public String getTitle() {
+                                return methodCommand.title().isBlank() ? classCommand.title() : methodCommand.title();
+                            }
+
+                            @Override
+                            public String getDescription() {
+                                return methodCommand.description().isBlank() ? classCommand.description() : methodCommand.description();
+                            }
+
+                            @Override
+                            public void run() {
+                                Object obj = null;
+                                try {
+                                    obj = method.getClass().getDeclaredConstructor().newInstance();
+                                    method.invoke(obj);
+                                } catch (InstantiationException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+                                    new RuntimeException(e);
+                                }
+                            }
+                        };
+                    });
+            commands = Stream.concat(cliCommandInterfaceStream, annotatedCommandStream)
+                    .collect(Collectors.toMap(CliCommandInterface::getCommandID, Function.identity()));
+
+        } catch (IOException e) {
                 e.printStackTrace();
             }
         }
@@ -154,32 +195,10 @@ public class BookStore {
                 commands.get("1").run();
                 break;
             case "2":
-//                System.out.print("Search Keyword:");
-//                String keyword = scanner.nextLine();
-//                printBookList(searchBook(keyword));
                 commands.get("2").run();
                 break;
             case "3":
-                System.out.printf("Type title:");
-                String title = scanner.nextLine().trim();
-
-                System.out.printf("Type writer:");
-                String writer = scanner.nextLine().trim();
-
-                System.out.printf("Type publisher:");
-                String publisher = scanner.nextLine().trim();
-
-                System.out.printf("Type price:");
-                int price = Integer.parseInt( scanner.nextLine().trim() );
-
-                System.out.printf("Type releaseDate:");
-                String releaseDate = scanner.nextLine().trim();
-
-                System.out.printf("Type location:");
-                String location = scanner.nextLine().trim();
-
-                Book newBook = new Book(title, writer, publisher, price, releaseDate, location);
-                createBook(newBook);
+                commands.get("3").run();
                 break;
             case "4":
                 System.out.printf("Type title:");
@@ -383,14 +402,14 @@ public class BookStore {
         return this.purchaseList;
     }
 
-    private void deleteBook(String deletingTitle) {
+    public void deleteBook(String deletingTitle) {
         getBookList().stream()
                 .filter(book -> book.getTitle().equals(deletingTitle))
                 .findFirst()
                 .ifPresent(getBookList()::remove);
     }
 
-    private void createBook(Book newBook) {
+    public void createBook(Book newBook) {
         getBookList().add(newBook);
     }
 

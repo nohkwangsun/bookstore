@@ -1,19 +1,18 @@
-package com.onlinejava.project.bookstore.clicommands;
+package com.onlinejava.project.bookstore.cli;
 
 import com.onlinejava.project.bookstore.BookStore;
 
 import java.util.Scanner;
 
-public interface CliCommand {
+public interface CliCommandInterface {
     Scanner scanner = new Scanner(System.in);
     BookStore bookstore = new BookStore();
 
+    String getCommandID();
 
-    public String getCommandID();
+    String getTitle();
 
-    public String getTitle();
-
-    public String getDescription();
+    String getDescription();
 
     public void run();
 
