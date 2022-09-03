@@ -1,7 +1,6 @@
 package com.onlinejava.project.bookstore.cli;
 
 import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import static com.onlinejava.project.bookstore.cli.CliCommandInterface.scanner;
@@ -15,7 +14,7 @@ public class CommandInvocationHandler implements InvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        boolean target = method.getName().equals("run") && method.getParameterCount() == 0 && method.getReturnType() == Void.TYPE;
+        boolean target = method.getName().equals("run") && method.getParameterCount() == 0;
         if (!target) {
             return method.invoke(cliCommand, args);
         }
