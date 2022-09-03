@@ -1,6 +1,6 @@
 package com.onlinejava.project.bookstore.cli.commands;
 
-import com.onlinejava.project.bookstore.cli.CliCommandInterface;
+import com.onlinejava.project.bookstore.core.cli.CliCommandInterface;
 
 public class PrintBookListCommand implements CliCommandInterface {
     @Override

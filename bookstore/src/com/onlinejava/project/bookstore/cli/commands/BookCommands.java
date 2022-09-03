@@ -1,10 +1,10 @@
 package com.onlinejava.project.bookstore.cli.commands;
 
 import com.onlinejava.project.bookstore.Book;
-import com.onlinejava.project.bookstore.cli.CliCommand;
+import com.onlinejava.project.bookstore.core.cli.CliCommand;
 
-import static com.onlinejava.project.bookstore.cli.CliCommandInterface.bookstore;
-import static com.onlinejava.project.bookstore.cli.CliCommandInterface.scanner;
+import static com.onlinejava.project.bookstore.core.cli.CliCommandInterface.bookstore;
+import static com.onlinejava.project.bookstore.core.cli.CliCommandInterface.scanner;
 
 @CliCommand
 public class BookCommands {

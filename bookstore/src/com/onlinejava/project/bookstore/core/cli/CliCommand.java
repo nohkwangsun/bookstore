@@ -1,4 +1,4 @@
-package com.onlinejava.project.bookstore.cli;
+package com.onlinejava.project.bookstore.core.cli;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

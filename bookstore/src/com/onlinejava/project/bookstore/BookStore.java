@@ -1,8 +1,8 @@
 package com.onlinejava.project.bookstore;
 
-import com.onlinejava.project.bookstore.cli.CliCommandInterface;
-import com.onlinejava.project.bookstore.cli.CliCommand;
-import com.onlinejava.project.bookstore.cli.CommandInvocationHandler;
+import com.onlinejava.project.bookstore.core.cli.CliCommandInterface;
+import com.onlinejava.project.bookstore.core.cli.CliCommand;
+import com.onlinejava.project.bookstore.core.cli.CommandInvocationHandler;
 
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
