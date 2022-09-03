@@ -1,11 +1,16 @@
 package com.onlinejava.project.bookstore;
 
+import com.onlinejava.project.bookstore.clicommands.CliCommand;
+
 import java.io.*;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.util.*;
+import java.util.function.Function;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -15,14 +20,15 @@ public class BookStore {
     private List<Book> bookList;
     private List<Purchase> purchaseList;
     private List<Member> memberList;
+    private Map<String, CliCommand> commands;
 
     {
         try {
             bookList = Files.lines(Path.of("booklist.csv"))
-                .map(line -> {
-                    List<String> book = Arrays.stream(line.split(",")).map(String::trim).toList();
-                    return new Book(book.get(0), book.get(1), book.get(2), Integer.parseInt(book.get(3)), book.get(4), book.get(5));
-                }).collect(Collectors.toList());
+                    .map(line -> {
+                        List<String> book = Arrays.stream(line.split(",")).map(String::trim).toList();
+                        return new Book(book.get(0), book.get(1), book.get(2), Integer.parseInt(book.get(3)), book.get(4), book.get(5));
+                    }).collect(Collectors.toList());
 
             purchaseList = Files.lines(Path.of("purchaselist.csv"))
                     .map(line -> {
@@ -35,14 +41,66 @@ public class BookStore {
                         List<String> member = Arrays.stream(line.split(",")).map(String::trim).toList();
                         return new Member(member.get(0), member.get(1), member.get(2));
                     }).collect(Collectors.toList());
-
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-    }
+        String commandPackage = "com.onlinejava.project.bookstore.clicommands";
+        try (
+                InputStream resourceIStream = ClassLoader.getSystemClassLoader().getResourceAsStream(commandPackage.replaceAll("[.]", "/"));
+                InputStreamReader resourceISR = new InputStreamReader(resourceIStream);
+                BufferedReader resourceReader = new BufferedReader(resourceISR);
+        ) {
+            commands = resourceReader.lines()
+                    .filter(line -> line.endsWith(".class"))
+                    .map(line -> {
+                        try {
+                            String className = commandPackage + "." + line.substring(0, line.length() - 6);
+                            return Class.forName(className);
+                        } catch (ClassNotFoundException e) {
+                            throw new RuntimeException(e);
+                        }
+                    })
+                    .filter(clazz -> CliCommand.class.isAssignableFrom(clazz))
+                    .filter(clazz -> !clazz.isInterface())
+                    .map(clazz -> {
+                        try {
+                            return (CliCommand) clazz.getDeclaredConstructor().newInstance();
+                        } catch (InstantiationException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+                            throw new RuntimeException(e);
+                        }
+                    })
+                    .collect(Collectors.toMap(CliCommand::getCommandID, Function.identity()));
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
 
     public void printWelcomePage() {
+        commands.values().stream()
+                .sorted((c1, c2) -> {
+                    if (c1.order() != c2.order()) {
+                        return c1.order() - c2.order();
+                    }
+
+                    boolean isC1Number = Pattern.compile("\\\\d+").matcher(c1.getCommandID()).matches();
+                    boolean isC2Number = Pattern.compile("\\\\d+").matcher(c2.getCommandID()).matches();
+                    if (isC1Number && isC2Number) {
+                        return Integer.parseInt(c1.getCommandID()) - Integer.parseInt(c2.getCommandID());
+                    } else if (isC1Number && !isC2Number) {
+                        return -1;
+                    } else if (!isC1Number && isC2Number) {
+                        return 1;
+                    } else {
+                        return c1.getCommandID().compareTo(c2.getCommandID());
+                    }
+                })
+                .forEach(command -> {
+                    System.out.printf("%-13s|%6s. %-27s|%13s\n", "=", command.getCommandID(), command.getTitle(), "=");
+                    System.out.printf("%-13s|%6s  %-27s|%13s\n", "=", "", "", "=");
+                });
+        ;
         System.out.println();
         System.out.println();
         System.out.println();
@@ -93,13 +151,13 @@ public class BookStore {
         String command = scanner.nextLine().trim();
         switch (command) {
             case "1":
-                printBookList(getBookList());
+                commands.get("1").run();
                 break;
             case "2":
-                System.out.print("Search Keyword:");
-                String keyword = scanner.nextLine();
-                printBookList(searchBook(keyword));
-
+//                System.out.print("Search Keyword:");
+//                String keyword = scanner.nextLine();
+//                printBookList(searchBook(keyword));
+                commands.get("2").run();
                 break;
             case "3":
                 System.out.printf("Type title:");
@@ -336,14 +394,14 @@ public class BookStore {
         getBookList().add(newBook);
     }
 
-    private List<Book> searchBook(String keyword) {
+    public List<Book> searchBook(String keyword) {
         List<Book> bookList = getBookList().stream()
                 .filter(book -> book.getTitle().contains(keyword))
                 .toList();
         return bookList;
     }
 
-    private void printBookList(List<Book> bookList) {
+    public void printBookList(List<Book> bookList) {
         printTableLine();
         printHeader();
         bookList.forEach(this::printTable);
@@ -367,7 +425,7 @@ public class BookStore {
         System.out.println();
     }
 
-    private List<Book> getBookList() {
+    public List<Book> getBookList() {
         return bookList;
     }
 
