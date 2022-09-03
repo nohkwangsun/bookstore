@@ -2,9 +2,11 @@ package com.onlinejava.project.bookstore;
 
 import com.onlinejava.project.bookstore.cli.CliCommandInterface;
 import com.onlinejava.project.bookstore.cli.CliCommand;
+import com.onlinejava.project.bookstore.cli.CommandInvocationHandler;
 
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Proxy;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -74,6 +76,7 @@ public class BookStore {
                             throw new RuntimeException(e);
                         }
                     });
+
             Stream<CliCommandInterface> annotatedCommandStream = classesInPackage.stream()
                     .filter(clazz -> clazz.isAnnotationPresent(CliCommand.class))
                     .flatMap(clazz -> Arrays.stream(clazz.getDeclaredMethods()))
@@ -82,6 +85,15 @@ public class BookStore {
                     .map(method -> {
                         CliCommand classCommand = method.getClass().getDeclaredAnnotation(CliCommand.class);
                         CliCommand methodCommand = method.getDeclaredAnnotation(CliCommand.class);
+
+                        Object instance = null;
+                        try {
+                            instance = method.getDeclaringClass().getDeclaredConstructor().newInstance();
+                        } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
+                            throw new RuntimeException(e);
+                        }
+                        final Object finalInstance = instance;
+
                         return new CliCommandInterface() {
                             @Override
                             public String getCommandID() {
@@ -100,23 +112,28 @@ public class BookStore {
 
                             @Override
                             public void run() {
-                                Object obj = null;
                                 try {
-                                    obj = method.getClass().getDeclaredConstructor().newInstance();
-                                    method.invoke(obj);
-                                } catch (InstantiationException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-                                    new RuntimeException(e);
+                                    method.invoke(finalInstance);
+                                } catch (IllegalAccessException | InvocationTargetException e) {
+                                    throw new RuntimeException(e);
                                 }
                             }
                         };
                     });
+
             commands = Stream.concat(cliCommandInterfaceStream, annotatedCommandStream)
+                    .map(cmd -> {
+                        ClassLoader classLoader = CliCommandInterface.class.getClassLoader();
+                        Class[] interfaces = {CliCommandInterface.class};
+                        CommandInvocationHandler handler = new CommandInvocationHandler(cmd);
+                        return (CliCommandInterface) Proxy.newProxyInstance(classLoader, interfaces, handler);
+                    })
                     .collect(Collectors.toMap(CliCommandInterface::getCommandID, Function.identity()));
 
         } catch (IOException e) {
-                e.printStackTrace();
-            }
+            e.printStackTrace();
         }
+    }
 
     public void printWelcomePage() {
         commands.values().stream()
@@ -201,9 +218,7 @@ public class BookStore {
                 commands.get("3").run();
                 break;
             case "4":
-                System.out.printf("Type title:");
-                String deletingTitle = scanner.nextLine().trim();
-                deleteBook(deletingTitle);
+                commands.get("4").run();
                 break;
             case "5":
                 System.out.printf("Type title:");
@@ -266,8 +281,6 @@ public class BookStore {
             default:
                 System.out.println("Error: Unknown command : " + command);
         }
-        System.out.println("Press enter for the menu...");
-        scanner.nextLine();
     }
 
     private void printPurchaseListByUser(String userName) {

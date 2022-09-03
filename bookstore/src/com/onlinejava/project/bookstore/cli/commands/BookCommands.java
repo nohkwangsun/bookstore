@@ -39,4 +39,5 @@ public class BookCommands {
         String deletingTitle = scanner.nextLine().trim();
         bookstore.deleteBook(deletingTitle);
     }
+
 }
