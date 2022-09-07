@@ -8,6 +8,17 @@ import static com.onlinejava.project.bookstore.core.cli.CliCommandInterface.scan
 
 @CliCommand
 public class BookCommands {
+    @CliCommand(ID = "1", title = "Print book list")
+    public void printBookList() {
+        bookstore.printBookList(bookstore.getBookList());
+    }
+    
+    @CliCommand(ID = "2", title = "Search a book")
+    public void searchBook() {
+        System.out.print("Search Keyword:");
+        String keyword = scanner.nextLine();
+        bookstore.printBookList(bookstore.searchBook(keyword));
+    }
 
     @CliCommand(ID = "3", title = "Add a new book")
     public void addBookCommand() {
@@ -40,4 +51,21 @@ public class BookCommands {
         bookstore.deleteBook(deletingTitle);
     }
 
+    @CliCommand(ID = "5", title = "Buy a book")
+    public void buyBookCommand() {
+        System.out.printf("Type title:");
+        String titleToBuy = scanner.nextLine().trim();
+        System.out.printf("Type customer:");
+        String customer = scanner.nextLine().trim();
+        bookstore.buyBook(titleToBuy, customer);
+    }
+
+    @CliCommand(ID = "7", title = "Add book stock")
+    public void addBookStock() {
+        System.out.printf("Type title:");
+        String titleToAddStock = scanner.nextLine().trim();
+        System.out.printf("Type stock:");
+        int stock = Integer.parseInt(scanner.nextLine().trim());
+        bookstore.addStock(titleToAddStock, stock);
+    }
 }

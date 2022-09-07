@@ -2,26 +2,26 @@ package com.onlinejava.project.bookstore.cli.commands;
 
 import com.onlinejava.project.bookstore.core.cli.CliCommandInterface;
 
-public class BookSearchCommand implements CliCommandInterface {
+import static com.onlinejava.project.bookstore.core.cli.CliCommandInterface.bookstore;
+
+public class SaveCommand implements CliCommandInterface {
     @Override
     public String getCommandID() {
-        return "2";
+        return "s";
     }
 
     @Override
     public String getTitle() {
-        return "Book Search";
+        return "Save";
     }
 
     @Override
     public String getDescription() {
-        return "Print the books you want to search.";
+        return "Save changes.";
     }
 
     @Override
     public void run() {
-        System.out.print("Search Keyword:");
-        String keyword = scanner.nextLine();
-        bookstore.printBookList(bookstore.searchBook(keyword));
+        bookstore.saveAsFile();
     }
 }

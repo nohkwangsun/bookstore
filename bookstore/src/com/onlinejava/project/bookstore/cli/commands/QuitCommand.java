@@ -2,24 +2,24 @@ package com.onlinejava.project.bookstore.cli.commands;
 
 import com.onlinejava.project.bookstore.core.cli.CliCommandInterface;
 
-public class PrintBookListCommand implements CliCommandInterface {
+public class QuitCommand implements CliCommandInterface {
     @Override
     public String getCommandID() {
-        return "1";
+        return "q";
     }
 
     @Override
     public String getTitle() {
-        return "Print book list";
+        return "Quit";
     }
 
     @Override
     public String getDescription() {
-        return "Print all books the bookstore has.";
+        return "Exit the program.";
     }
 
     @Override
     public void run() {
-        bookstore.printBookList(bookstore.getBookList());
+        System.exit(0);
     }
 }
