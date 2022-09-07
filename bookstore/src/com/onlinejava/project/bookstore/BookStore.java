@@ -1,13 +1,25 @@
 package com.onlinejava.project.bookstore;
 
+import com.onlinejava.project.bookstore.core.cli.CliCommandInterface;
+import com.onlinejava.project.bookstore.core.cli.CliCommand;
+import com.onlinejava.project.bookstore.core.cli.CommandInvocationHandler;
+
 import java.io.*;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.util.*;
+import java.util.function.Function;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
+
+import static com.onlinejava.project.bookstore.Functions.unchecked;
 
 public class BookStore {
 
@@ -15,14 +27,15 @@ public class BookStore {
     private List<Book> bookList;
     private List<Purchase> purchaseList;
     private List<Member> memberList;
+    private Map<String, CliCommandInterface> commands;
 
     {
         try {
             bookList = Files.lines(Path.of("booklist.csv"))
-                .map(line -> {
-                    List<String> book = Arrays.stream(line.split(",")).map(String::trim).toList();
-                    return new Book(book.get(0), book.get(1), book.get(2), Integer.parseInt(book.get(3)), book.get(4), book.get(5));
-                }).collect(Collectors.toList());
+                    .map(line -> {
+                        List<String> book = Arrays.stream(line.split(",")).map(String::trim).toList();
+                        return new Book(book.get(0), book.get(1), book.get(2), Integer.parseInt(book.get(3)), book.get(4), book.get(5));
+                    }).collect(Collectors.toList());
 
             purchaseList = Files.lines(Path.of("purchaselist.csv"))
                     .map(line -> {
@@ -35,11 +48,88 @@ public class BookStore {
                         List<String> member = Arrays.stream(line.split(",")).map(String::trim).toList();
                         return new Member(member.get(0), member.get(1), member.get(2));
                     }).collect(Collectors.toList());
-
         } catch (IOException e) {
             e.printStackTrace();
         }
 
+        String commandPackage = "com.onlinejava.project.bookstore.cli.commands";
+        try (
+                InputStream resourceIStream = ClassLoader.getSystemClassLoader().getResourceAsStream(commandPackage.replaceAll("[.]", "/"));
+                InputStreamReader resourceISR = new InputStreamReader(resourceIStream);
+                BufferedReader resourceReader = new BufferedReader(resourceISR);
+        ) {
+
+            List<Class> classesInPackage = resourceReader.lines()
+                    .filter(line -> line.endsWith(".class"))
+                    .map(unchecked(line -> Class.forName(commandPackage + "." + line.substring(0, line.length() - 6))))
+                    .collect(Collectors.toUnmodifiableList());
+
+            Stream<CliCommandInterface> cliCommandInterfaceStream = classesInPackage.stream()
+                    .filter(clazz -> CliCommandInterface.class.isAssignableFrom(clazz))
+                    .filter(clazz -> !clazz.isInterface())
+                    .map(unchecked(clazz -> (CliCommandInterface) clazz.getDeclaredConstructor().newInstance()));
+
+            Stream<CliCommandInterface> annotatedCommandStream = classesInPackage.stream()
+                    .filter(clazz -> clazz.isAnnotationPresent(CliCommand.class))
+                    .flatMap(clazz -> Arrays.stream(clazz.getDeclaredMethods()))
+                    .filter(method -> method.isAnnotationPresent(CliCommand.class))
+                    .filter(method -> method.getParameterCount() == 0)
+                    .map(BookStore::methodToCliCommand);
+
+            commands = Stream.concat(cliCommandInterfaceStream, annotatedCommandStream)
+                    .map(BookStore::commandToProxy)
+                    .collect(Collectors.toMap(CliCommandInterface::getCommandID, Function.identity()));
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static CliCommandInterface commandToProxy(CliCommandInterface cmd) {
+        ClassLoader classLoader = CliCommandInterface.class.getClassLoader();
+        Class[] interfaces = {CliCommandInterface.class};
+        CommandInvocationHandler handler = new CommandInvocationHandler(cmd);
+        return (CliCommandInterface) Proxy.newProxyInstance(classLoader, interfaces, handler);
+    }
+
+    private static CliCommandInterface methodToCliCommand(Method method) {
+        CliCommand classCommand = method.getClass().getDeclaredAnnotation(CliCommand.class);
+        CliCommand methodCommand = method.getDeclaredAnnotation(CliCommand.class);
+
+        Object instance = null;
+        try {
+            instance = method.getDeclaringClass().getDeclaredConstructor().newInstance();
+        } catch (NoSuchMethodException | InstantiationException | IllegalAccessException |
+                 InvocationTargetException e) {
+            throw new RuntimeException(e);
+        }
+        final Object finalInstance = instance;
+
+        return new CliCommandInterface() {
+            @Override
+            public String getCommandID() {
+                return methodCommand.ID().isBlank() ? classCommand.ID() : methodCommand.ID();
+            }
+
+            @Override
+            public String getTitle() {
+                return methodCommand.title().isBlank() ? classCommand.title() : methodCommand.title();
+            }
+
+            @Override
+            public String getDescription() {
+                return methodCommand.description().isBlank() ? classCommand.description() : methodCommand.description();
+            }
+
+            @Override
+            public void run() {
+                try {
+                    method.invoke(finalInstance);
+                } catch (IllegalAccessException | InvocationTargetException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        };
     }
 
     public void printWelcomePage() {
@@ -48,158 +138,43 @@ public class BookStore {
         System.out.println();
         System.out.println();
         System.out.println();
-        System.out.println("======================================================================");
-        System.out.println("=                                                                    =");
-        System.out.println("=                                                                    =");
-        System.out.println("=                   Welcome to Bookstore                             =");
-        System.out.println("=                                                                    =");
-        System.out.println("=            ------------------------------------                    =");
-        System.out.println("=            |                                  |                    =");
-        System.out.println("=            |     1. Print book list           |                    =");
-        System.out.println("=            |                                  |                    =");
-        System.out.println("=            |     2. Book Search               |                    =");
-        System.out.println("=            |                                  |                    =");
-        System.out.println("=            |     3. Add new book              |                    =");
-        System.out.println("=            |                                  |                    =");
-        System.out.println("=            |     4. Delete a book             |                    =");
-        System.out.println("=            |                                  |                    =");
-        System.out.println("=            |     5. buy a book                |                    =");
-        System.out.println("=            |                                  |                    =");
-        System.out.println("=            |     6. Print purchase list       |                    =");
-        System.out.println("=            |                                  |                    =");
-        System.out.println("=            |     7. Add book stock            |                    =");
-        System.out.println("=            |                                  |                    =");
-        System.out.println("=            |     8. Print member list         |                    =");
-        System.out.println("=            |                                  |                    =");
-        System.out.println("=            |     9. Add new member            |                    =");
-        System.out.println("=            |                                  |                    =");
-        System.out.println("=            |    10. Withdraw a member         |                    =");
-        System.out.println("=            |                                  |                    =");
-        System.out.println("=            |    11. Modify a member           |                    =");
-        System.out.println("=            |                                  |                    =");
-        System.out.println("=            |    12. Print a user's purchases  |                    =");
-        System.out.println("=            |                                  |                    =");
-        System.out.println("=            |     s. Save                      |                    =");
-        System.out.println("=            |                                  |                    =");
-        System.out.println("=            |     q. Quit                      |                    =");
-        System.out.println("=            |                                  |                    =");
-        System.out.println("=            ------------------------------------                    =");
-        System.out.println("=                                                                    =");
-        System.out.println("======================================================================");
+        System.out.println("==============================================================");
+        System.out.println("=                                                            =");
+        System.out.println("=                                                            =");
+        System.out.println("=                   Welcome to Bookstore                     =");
+        System.out.println("=                                                            =");
+        System.out.println("=            ------------------------------------            =");
+        System.out.println("=            |                                  |            =");
+
+        commands.values().stream()
+                .sorted(CliCommandInterface::ordering)
+                .forEach(command -> {
+                    System.out.printf("%-13s|%6s. %-26s|%13s\n", "=", command.getCommandID(), command.getTitle(), "=");
+                    System.out.printf("%-13s|%6s  %-26s|%13s\n", "=", "", "", "=");
+                });
+
+        System.out.println("=            ------------------------------------            =");
+        System.out.println("=                                                            =");
+        System.out.println("==============================================================");
         System.out.print("Type the number of the command you want to run:");
     }
 
     public void runCommand(Scanner scanner) {
-        String command = scanner.nextLine().trim();
-        switch (command) {
-            case "1":
-                printBookList(getBookList());
-                break;
-            case "2":
-                System.out.print("Search Keyword:");
-                String keyword = scanner.nextLine();
-                printBookList(searchBook(keyword));
+        String cmdNum = scanner.nextLine().trim();
+        Optional.ofNullable(commands.get(cmdNum)).ifPresentOrElse(
+                command -> command.run(),
+                () -> System.out.println("Error: Unknown command : " + cmdNum)
+        );
 
-                break;
-            case "3":
-                System.out.printf("Type title:");
-                String title = scanner.nextLine().trim();
-
-                System.out.printf("Type writer:");
-                String writer = scanner.nextLine().trim();
-
-                System.out.printf("Type publisher:");
-                String publisher = scanner.nextLine().trim();
-
-                System.out.printf("Type price:");
-                int price = Integer.parseInt( scanner.nextLine().trim() );
-
-                System.out.printf("Type releaseDate:");
-                String releaseDate = scanner.nextLine().trim();
-
-                System.out.printf("Type location:");
-                String location = scanner.nextLine().trim();
-
-                Book newBook = new Book(title, writer, publisher, price, releaseDate, location);
-                createBook(newBook);
-                break;
-            case "4":
-                System.out.printf("Type title:");
-                String deletingTitle = scanner.nextLine().trim();
-                deleteBook(deletingTitle);
-                break;
-            case "5":
-                System.out.printf("Type title:");
-                String titleToBuy = scanner.nextLine().trim();
-                System.out.printf("Type customer:");
-                String customer = scanner.nextLine().trim();
-                buyBook(titleToBuy, customer);
-                break;
-            case "6":
-                printPurchaseList();
-                break;
-            case "7":
-                System.out.printf("Type title:");
-                String titleToAddStock = scanner.nextLine().trim();
-                System.out.printf("Type stock:");
-                int stock = Integer.parseInt(scanner.nextLine().trim());
-                addStock(titleToAddStock, stock);
-                break;
-            case "8":
-                printMemberList();
-                break;
-            case "9":
-                System.out.printf("Type user name:");
-                String userName = scanner.nextLine().trim();
-                System.out.printf("Type email:");
-                String email = scanner.nextLine().trim();
-                System.out.printf("Type address:");
-                String address = scanner.nextLine().trim();
-                addMember(userName, email, address);
-                break;
-            case "10":
-                System.out.printf("Type user name:");
-                String userNameToWithdraw = scanner.nextLine().trim();
-                withdrawMember(userNameToWithdraw);
-                break;
-            case "11":
-                System.out.printf("Type user name:");
-                String userNameToModify = scanner.nextLine().trim();
-                getMemberByUserName(userNameToModify).ifPresent(member -> {
-                    System.out.printf("Type new user name [default:%s] :", member.getUserName());
-                    String newUserName = scanner.nextLine().trim();
-                    System.out.printf("Type email [default:%s] :", member.getEmail());
-                    String newEmail = scanner.nextLine().trim();
-                    System.out.printf("Type address [default:%s] :", member.getAddress());
-                    String newAddress = scanner.nextLine().trim();
-                    modifyMember(userNameToModify, new Member(newUserName, newEmail, newAddress));
-                });
-                break;
-            case "12":
-                System.out.printf("Type user name:");
-                String userNameToPrintPurchases = scanner.nextLine().trim();
-                printPurchaseListByUser(userNameToPrintPurchases);
-                break;
-            case "s":
-                saveAsFile();
-                break;
-            case "q":
-                System.exit(0);
-                break;
-            default:
-                System.out.println("Error: Unknown command : " + command);
-        }
-        System.out.println("Press enter for the menu...");
-        scanner.nextLine();
     }
 
-    private void printPurchaseListByUser(String userName) {
+    public void printPurchaseListByUser(String userName) {
         getPurchaseList().stream()
                 .filter(purchase -> purchase.getCustomer().equals(userName))
                 .forEach(System.out::println);
     }
 
-    private void saveAsFile() {
+    public void saveAsFile() {
         try {
             File tmpFile = new File("memberlist.csv.tmp");
             tmpFile.createNewFile();
@@ -251,7 +226,7 @@ public class BookStore {
         }
     }
 
-    private void modifyMember(String userNameToModify, Member member) {
+    public void modifyMember(String userNameToModify, Member member) {
         getMemberList().stream()
                 .filter(exMember -> exMember.getUserName().equals(userNameToModify))
                 .forEach(exMember -> {
@@ -269,23 +244,23 @@ public class BookStore {
                 });
     }
 
-    private Optional<Member> getMemberByUserName(String userNameToModify) {
+    public Optional<Member> getMemberByUserName(String userNameToModify) {
         return getMemberList().stream()
                     .filter(member -> member.getUserName().equals(userNameToModify))
                     .findFirst();
     }
 
-    private void withdrawMember(String userName) {
+    public void withdrawMember(String userName) {
         getMemberList().stream()
                 .filter(member -> member.getUserName().equals(userName))
                 .forEach(member -> member.setActive(false));
     }
 
-    private void addMember(String userName, String email, String address) {
+    public void addMember(String userName, String email, String address) {
         getMemberList().add(new Member(userName, email, address));
     }
 
-    private void printMemberList() {
+    public void printMemberList() {
         getActiveMemberList().stream()
                 .forEach(System.out::println);
     }
@@ -299,18 +274,18 @@ public class BookStore {
     }
 
 
-    private void addStock(String titleToAddStock, int stock) {
+    public void addStock(String titleToAddStock, int stock) {
         getBookList().stream()
                 .filter(book -> book.getTitle().equals(titleToAddStock))
                 .forEach(book -> book.addStock(stock));
     }
 
-    private void printPurchaseList() {
+    public void printPurchaseList() {
         getPurchaseList().stream()
                 .forEach(System.out::println);
     }
 
-    private void buyBook(String titleToBuy, String customer) {
+    public void buyBook(String titleToBuy, String customer) {
         getBookList().stream()
                 .filter(book -> book.getTitle().equals(titleToBuy))
                 .filter(book -> book.getStock() > 0)
@@ -325,25 +300,25 @@ public class BookStore {
         return this.purchaseList;
     }
 
-    private void deleteBook(String deletingTitle) {
+    public void deleteBook(String deletingTitle) {
         getBookList().stream()
                 .filter(book -> book.getTitle().equals(deletingTitle))
                 .findFirst()
                 .ifPresent(getBookList()::remove);
     }
 
-    private void createBook(Book newBook) {
+    public void createBook(Book newBook) {
         getBookList().add(newBook);
     }
 
-    private List<Book> searchBook(String keyword) {
+    public List<Book> searchBook(String keyword) {
         List<Book> bookList = getBookList().stream()
                 .filter(book -> book.getTitle().contains(keyword))
                 .toList();
         return bookList;
     }
 
-    private void printBookList(List<Book> bookList) {
+    public void printBookList(List<Book> bookList) {
         printTableLine();
         printHeader();
         bookList.forEach(this::printTable);
@@ -367,7 +342,7 @@ public class BookStore {
         System.out.println();
     }
 
-    private List<Book> getBookList() {
+    public List<Book> getBookList() {
         return bookList;
     }
 
