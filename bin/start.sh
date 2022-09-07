@@ -1,10 +1,14 @@
-cd ..
-command -v gotty
-if [ $? -eq "0" ]
-then
-  java -Dfile.encoding=UTF-8 -classpath bookstore/out com.onlinejava.project.bookstore.Main
+#!/bin/bash
+
+WORKING_DIR=$(cd $(dirname "$0")/.. && pwd)
+
+cd "${WORKING_DIR}"
+JAVA_COMMAND="java -Dfile.encoding=UTF-8 -classpath ${WORKING_DIR}/bookstore/out com.onlinejava.project.bookstore.Main"
+
+if [ ! -x $(command -v gotty >> /dev/null) ]; then
+  eval "${JAVA_COMMAND}"
 else
-  nohup gotty -w -p 10000 java -Dfile.encoding=UTF-8 -classpath bookstore/out com.onlinejava.project.bookstore.Main &>> h2.out &
+  nohup gotty -w -p 10000 ${JAVA_COMMAND} &>> "${WORKING_DIR}"/bin/gotty.out &
   pid="$!"
-  echo $pid > gotty.pid
+  echo $pid > "${WORKING_DIR}"/bin/gotty.pid
 fi
