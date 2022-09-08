@@ -8,7 +8,7 @@ JAVA_COMMAND="java -Dfile.encoding=UTF-8 -classpath ${WORKING_DIR}/bookstore/out
 if [ ! -x $(command -v gotty >> /dev/null) ]; then
   eval "${JAVA_COMMAND}"
 else
-  nohup gotty -w -p 10000 ${JAVA_COMMAND} &>> "${WORKING_DIR}"/bin/gotty.out &
+  nohup gotty -w -p 10000 --title-format Damazon ${JAVA_COMMAND} &>> "${WORKING_DIR}"/bin/gotty.out &
   pid="$!"
   echo $pid > "${WORKING_DIR}"/bin/gotty.pid
 fi
