@@ -67,6 +67,10 @@ public class Member {
         this.totalPoint = totalPoint;
     }
 
+    public void addPoint(int point) {
+        this.totalPoint += point;
+    }
+
     public String toCsvString() {
         return String.join(", ", userName, email, address, String.valueOf(active), String.valueOf(totalPoint));
     }

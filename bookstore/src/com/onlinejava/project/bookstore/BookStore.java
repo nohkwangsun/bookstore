@@ -298,6 +298,9 @@ public class BookStore {
                     book.setStock(book.getStock() - 1);
                     Purchase purchase = new Purchase(titleToBuy, customer, 1, book.getPrice(), Math.round(book.getPrice() * 0.5f));
                     getPurchaseList().add(purchase);
+                    getMemberList().stream()
+                            .filter(member -> member.getUserName().equals(customer))
+                            .forEach(member -> member.addPoint(Math.round(book.getPrice() * 0.5f)));
                 });
     }
 

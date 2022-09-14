@@ -69,6 +69,6 @@ public class Purchase {
     }
 
     public String toCsvString() {
-        return String.join(", ", title, customer, String.valueOf(numberOfPurchase));
+        return String.join(", ", title, customer, String.valueOf(numberOfPurchase), String.valueOf(totalPrice), String.valueOf(point));
     }
 }
