@@ -1,16 +1,19 @@
-package com.onlinejava.project.bookstore;
+package com.onlinejava.project.bookstore.domain;
 
 public class Member {
     private String userName;
     private String email;
     private String address;
+
+    private int totalPoint;
     private boolean active;
 
-    public Member(String userName, String email, String address) {
+    public Member(String userName, String email, String address, int totalPoint, boolean active) {
         this.userName = userName;
         this.email = email;
         this.address = address;
-        this.active = true;
+        this.totalPoint = totalPoint;
+        this.active = active;
     }
 
     @Override
@@ -19,7 +22,8 @@ public class Member {
                 "userName='" + userName + '\'' +
                 ", email='" + email + '\'' +
                 ", address='" + address + '\'' +
-                ", active='" + active + '\'' +
+                ", totalPoint=" + totalPoint +
+                ", active=" + active +
                 '}';
     }
 
@@ -55,7 +59,19 @@ public class Member {
         this.active = active;
     }
 
+    public int getTotalPoint() {
+        return totalPoint;
+    }
+
+    public void setTotalPoint(int totalPoint) {
+        this.totalPoint = totalPoint;
+    }
+
+    public void addPoint(int point) {
+        this.totalPoint += point;
+    }
+
     public String toCsvString() {
-        return String.join(", ", userName, email, address, String.valueOf(active));
+        return String.join(", ", userName, email, address, String.valueOf(active), String.valueOf(totalPoint));
     }
 }

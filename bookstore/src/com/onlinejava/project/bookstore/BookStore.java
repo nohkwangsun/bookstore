@@ -1,8 +1,11 @@
 package com.onlinejava.project.bookstore;
 
-import com.onlinejava.project.bookstore.core.cli.CliCommandInterface;
 import com.onlinejava.project.bookstore.core.cli.CliCommand;
+import com.onlinejava.project.bookstore.core.cli.CliCommandInterface;
 import com.onlinejava.project.bookstore.core.cli.CommandInvocationHandler;
+import com.onlinejava.project.bookstore.domain.Book;
+import com.onlinejava.project.bookstore.domain.Member;
+import com.onlinejava.project.bookstore.domain.Purchase;
 
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
@@ -14,12 +17,11 @@ import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.util.*;
 import java.util.function.Function;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import static com.onlinejava.project.bookstore.Functions.unchecked;
+import static com.onlinejava.project.bookstore.core.Functions.unchecked;
 
 public class BookStore {
 
@@ -29,39 +31,36 @@ public class BookStore {
     private List<Member> memberList;
     private Map<String, CliCommandInterface> commands;
 
+    public static final String COMMAND_PACKAGE = "com.onlinejava.project.bookstore.cli.commands";
+
     {
-        try {
-            bookList = Files.lines(Path.of("booklist.csv"))
+            bookList = getFileLines("booklist.csv")
                     .map(line -> {
                         List<String> book = Arrays.stream(line.split(",")).map(String::trim).toList();
                         return new Book(book.get(0), book.get(1), book.get(2), Integer.parseInt(book.get(3)), book.get(4), book.get(5));
                     }).collect(Collectors.toList());
 
-            purchaseList = Files.lines(Path.of("purchaselist.csv"))
+            purchaseList = getFileLines("purchaselist.csv")
                     .map(line -> {
                         List<String> purchase = Arrays.stream(line.split(",")).map(String::trim).toList();
-                        return new Purchase(purchase.get(0), purchase.get(1), Integer.parseInt(purchase.get(2)));
+                        return new Purchase(purchase.get(0), purchase.get(1), Integer.parseInt(purchase.get(2)), Integer.parseInt(purchase.get(3)), Integer.parseInt(purchase.get(4)));
                     }).collect(Collectors.toList());
 
-            memberList = Files.lines(Path.of("memberlist.csv"))
+            memberList = getFileLines("memberlist.csv")
                     .map(line -> {
                         List<String> member = Arrays.stream(line.split(",")).map(String::trim).toList();
-                        return new Member(member.get(0), member.get(1), member.get(2));
+                        return new Member(member.get(0), member.get(1), member.get(2), Integer.parseInt(member.get(3)), Boolean.valueOf(member.get(4)));
                     }).collect(Collectors.toList());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
 
-        String commandPackage = "com.onlinejava.project.bookstore.cli.commands";
         try (
-                InputStream resourceIStream = ClassLoader.getSystemClassLoader().getResourceAsStream(commandPackage.replaceAll("[.]", "/"));
+                InputStream resourceIStream = ClassLoader.getSystemClassLoader().getResourceAsStream(COMMAND_PACKAGE.replaceAll("[.]", "/"));
                 InputStreamReader resourceISR = new InputStreamReader(resourceIStream);
-                BufferedReader resourceReader = new BufferedReader(resourceISR);
+                BufferedReader resourceReader = new BufferedReader(resourceISR)
         ) {
 
             List<Class> classesInPackage = resourceReader.lines()
                     .filter(line -> line.endsWith(".class"))
-                    .map(unchecked(line -> Class.forName(commandPackage + "." + line.substring(0, line.length() - 6))))
+                    .map(unchecked(line -> Class.forName(COMMAND_PACKAGE + "." + line.substring(0, line.length() - 6))))
                     .collect(Collectors.toUnmodifiableList());
 
             Stream<CliCommandInterface> cliCommandInterfaceStream = classesInPackage.stream()
@@ -82,6 +81,14 @@ public class BookStore {
 
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    private Stream<String> getFileLines(String first) {
+        try {
+            return Files.lines(Path.of(first));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -162,7 +169,7 @@ public class BookStore {
     public void runCommand(Scanner scanner) {
         String cmdNum = scanner.nextLine().trim();
         Optional.ofNullable(commands.get(cmdNum)).ifPresentOrElse(
-                command -> command.run(),
+                CliCommandInterface::run,
                 () -> System.out.println("Error: Unknown command : " + cmdNum)
         );
 
@@ -257,12 +264,11 @@ public class BookStore {
     }
 
     public void addMember(String userName, String email, String address) {
-        getMemberList().add(new Member(userName, email, address));
+        getMemberList().add(new Member(userName, email, address, 0, true));
     }
 
     public void printMemberList() {
-        getActiveMemberList().stream()
-                .forEach(System.out::println);
+        getActiveMemberList().forEach(System.out::println);
     }
 
     private List<Member> getMemberList() {
@@ -270,7 +276,7 @@ public class BookStore {
     }
 
     private List<Member> getActiveMemberList() {
-        return getMemberList().stream().filter(member -> member.isActive()).collect(Collectors.toUnmodifiableList());
+        return getMemberList().stream().filter(Member::isActive).toList();
     }
 
 
@@ -281,8 +287,7 @@ public class BookStore {
     }
 
     public void printPurchaseList() {
-        getPurchaseList().stream()
-                .forEach(System.out::println);
+        getPurchaseList().forEach(System.out::println);
     }
 
     public void buyBook(String titleToBuy, String customer) {
@@ -291,8 +296,11 @@ public class BookStore {
                 .filter(book -> book.getStock() > 0)
                 .forEach(book -> {
                     book.setStock(book.getStock() - 1);
-                    Purchase purchase = new Purchase(titleToBuy, customer, 1);
+                    Purchase purchase = new Purchase(titleToBuy, customer, 1, book.getPrice(), Math.round(book.getPrice() * 0.5f));
                     getPurchaseList().add(purchase);
+                    getMemberList().stream()
+                            .filter(member -> member.getUserName().equals(customer))
+                            .forEach(member -> member.addPoint(Math.round(book.getPrice() * 0.5f)));
                 });
     }
 
@@ -312,10 +320,9 @@ public class BookStore {
     }
 
     public List<Book> searchBook(String keyword) {
-        List<Book> bookList = getBookList().stream()
+        return getBookList().stream()
                 .filter(book -> book.getTitle().contains(keyword))
                 .toList();
-        return bookList;
     }
 
     public void printBookList(List<Book> bookList) {
@@ -333,7 +340,7 @@ public class BookStore {
 
     private void printTable(Book book) {
         printTableLine();
-        System.out.printf("| %-10s \t | %-10s \t | %-10d \t | %-10s \t | %-10d \t |\n",
+        System.out.printf("| %-10s \t | %-10s \t | %-10s \t | %-10s \t | %-10s \t |\n",
                 book.getTitle(), book.getWriter(), book.getPrice(), book.getLocation(), book.getStock());
     }
 

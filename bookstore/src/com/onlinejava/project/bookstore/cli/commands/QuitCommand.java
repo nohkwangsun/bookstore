@@ -2,6 +2,7 @@ package com.onlinejava.project.bookstore.cli.commands;
 
 import com.onlinejava.project.bookstore.core.cli.CliCommandInterface;
 
+@SuppressWarnings({"unused"})
 public class QuitCommand implements CliCommandInterface {
     @Override
     public String getCommandID() {

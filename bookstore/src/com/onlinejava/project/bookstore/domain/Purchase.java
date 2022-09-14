@@ -1,9 +1,29 @@
-package com.onlinejava.project.bookstore;
+package com.onlinejava.project.bookstore.domain;
 
 public class Purchase {
     private String title;
     private String customer;
     private int numberOfPurchase;
+
+    private int totalPrice;
+
+    private int point;
+
+    public int getTotalPrice() {
+        return totalPrice;
+    }
+
+    public void setTotalPrice(int totalPrice) {
+        this.totalPrice = totalPrice;
+    }
+
+    public int getPoint() {
+        return point;
+    }
+
+    public void setPoint(int point) {
+        this.point = point;
+    }
 
     public String getTitle() {
         return title;
@@ -35,17 +55,20 @@ public class Purchase {
                 "title='" + title + '\'' +
                 ", customer='" + customer + '\'' +
                 ", numberOfPurchase=" + numberOfPurchase +
+                ", totalPrice=" + totalPrice +
+                ", point=" + point +
                 '}';
     }
 
-    public Purchase(String title, String customer, int numberOfPurchase) {
-
+    public Purchase(String title, String customer, int numberOfPurchase, int totalPrice, int point) {
         this.title = title;
         this.customer = customer;
         this.numberOfPurchase = numberOfPurchase;
+        this.totalPrice = totalPrice;
+        this.point = point;
     }
 
     public String toCsvString() {
-        return String.join(", ", title, customer, String.valueOf(numberOfPurchase));
+        return String.join(", ", title, customer, String.valueOf(numberOfPurchase), String.valueOf(totalPrice), String.valueOf(point));
     }
 }
