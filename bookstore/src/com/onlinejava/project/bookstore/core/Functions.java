@@ -1,4 +1,4 @@
-package com.onlinejava.project.bookstore;
+package com.onlinejava.project.bookstore.core;
 
 import java.util.function.Function;
 
@@ -9,7 +9,7 @@ public class Functions {
 
     }
 
-    static <T, R> Function<T, R> unchecked(ThrowableFunction<T, R> function) {
+    public static <T, R> Function<T, R> unchecked(ThrowableFunction<T, R> function) {
         return (T t) -> {
             try {
                 return function.apply(t);

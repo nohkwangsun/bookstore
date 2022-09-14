@@ -6,6 +6,7 @@ import static com.onlinejava.project.bookstore.core.cli.CliCommandInterface.book
 import static com.onlinejava.project.bookstore.core.cli.CliCommandInterface.scanner;
 
 @CliCommand
+@SuppressWarnings({"unused"})
 public class PurchaseCommands {
 
     @CliCommand(ID = "6", title = "Print purchase list")
@@ -15,7 +16,7 @@ public class PurchaseCommands {
 
     @CliCommand(ID = "12", title = "Print a user's purchases")
     public void printUsersPurchaseList() {
-        System.out.printf("Type user name:");
+        System.out.print("Type user name:");
         String userNameToPrintPurchases = scanner.nextLine().trim();
         bookstore.printPurchaseListByUser(userNameToPrintPurchases);
     }

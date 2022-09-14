@@ -1,4 +1,4 @@
-package com.onlinejava.project.bookstore;
+package com.onlinejava.project.bookstore.domain;
 
 public class Book {
     private String title;

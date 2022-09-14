@@ -15,13 +15,13 @@ public interface CliCommandInterface {
 
     String getDescription();
 
-    public void run();
+    void run();
 
-    public default int order() {
+    default int order() {
         return Integer.MAX_VALUE;
     }
 
-    public static int ordering(CliCommandInterface c1, CliCommandInterface c2) {
+    static int ordering(CliCommandInterface c1, CliCommandInterface c2) {
         if (c1.order() != c2.order()) {
             return c1.order() - c2.order();
         }

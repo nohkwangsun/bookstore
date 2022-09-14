@@ -2,8 +2,7 @@ package com.onlinejava.project.bookstore.cli.commands;
 
 import com.onlinejava.project.bookstore.core.cli.CliCommandInterface;
 
-import static com.onlinejava.project.bookstore.core.cli.CliCommandInterface.bookstore;
-
+@SuppressWarnings({"unused"})
 public class SaveCommand implements CliCommandInterface {
     @Override
     public String getCommandID() {
