@@ -20,7 +20,7 @@ else
   done
 
   if [[ ! $(ps -p "${pid}" -o comm=) =~ "gotty" ]]; then
-    echo "failed to launch: gotty, damazon"
+    echo "Failed to launch: the damazon with gotty"
     tail -10 "${WORKING_DIR}"/bin/gotty.out
   fi
 fi

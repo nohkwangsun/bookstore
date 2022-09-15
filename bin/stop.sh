@@ -6,21 +6,21 @@ pid_file="${WORKING_DIR}/bin/gotty.pid"
 pid="$(cat "$pid_file")"
 if [ -f "$pid_file" ]; then
   if [[ $(ps -p "$pid" -o comm=) =~ gotty ]]; then
-    echo "Stopping gotty, damazon"
-    kill "pid" && rm "${WORKING_DIR}/bin/gotty.pid"
+    echo "Stopping the damazon with gotty"
+    kill "${pid}" && rm "${WORKING_DIR}/bin/gotty.pid"
 
     for i in {1..10}; do
-      if [[ $(ps -p "${pid}" -o comm=) =~ "gotty" ]]; then
-        sleep 0.5
-        continue
-      else
-        echo "Stopped gotty, damazon"
+      if [[ $(ps -p "${pid}" -o comm=) != "gotty" ]]; then
         break
       fi
+      sleep 0.5
     done
+    echo "Stopped the damazon with gotty"
 
   else
-    echo "Fail to stop"
+    echo "Failed to stop"
   fi
-  echo "Fail to stop"
+
+else
+  echo "Failed to stop"
 fi
