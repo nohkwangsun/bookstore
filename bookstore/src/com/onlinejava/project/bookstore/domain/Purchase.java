@@ -1,6 +1,6 @@
 package com.onlinejava.project.bookstore.domain;
 
-public class Purchase {
+public class Purchase extends Entity {
     private String title;
     private String customer;
     private int numberOfPurchase;
@@ -66,9 +66,5 @@ public class Purchase {
         this.numberOfPurchase = numberOfPurchase;
         this.totalPrice = totalPrice;
         this.point = point;
-    }
-
-    public String toCsvString() {
-        return String.join(", ", title, customer, String.valueOf(numberOfPurchase), String.valueOf(totalPrice), String.valueOf(point));
     }
 }

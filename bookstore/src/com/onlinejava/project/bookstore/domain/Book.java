@@ -1,6 +1,6 @@
 package com.onlinejava.project.bookstore.domain;
 
-public class Book {
+public class Book extends Entity {
     private String title;
     private String writer;
     private String publisher;
@@ -94,9 +94,5 @@ public class Book {
 
     public void addStock(int stock) {
         this.setStock(this.getStock() + stock);
-    }
-
-    public String toCsvString() {
-        return String.join(", ", title, writer, publisher, String.valueOf(price), releaseDate, location, String.valueOf(stock));
     }
 }

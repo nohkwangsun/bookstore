@@ -1,12 +1,13 @@
 package com.onlinejava.project.bookstore.domain;
 
-public class Member {
+public class Member extends Entity {
     private String userName;
     private String email;
     private String address;
-
     private int totalPoint;
+    private Grade grade;
     private boolean active;
+
 
     public Member(String userName, String email, String address, int totalPoint, boolean active) {
         this.userName = userName;
@@ -14,6 +15,7 @@ public class Member {
         this.address = address;
         this.totalPoint = totalPoint;
         this.active = active;
+        this.grade = Grade.GENERAL;
     }
 
     @Override
@@ -24,6 +26,7 @@ public class Member {
                 ", address='" + address + '\'' +
                 ", totalPoint=" + totalPoint +
                 ", active=" + active +
+                ", grade=" + grade +
                 '}';
     }
 
@@ -51,14 +54,6 @@ public class Member {
         this.address = address;
     }
 
-    public boolean isActive() {
-        return active;
-    }
-
-    public void setActive(boolean active) {
-        this.active = active;
-    }
-
     public int getTotalPoint() {
         return totalPoint;
     }
@@ -67,11 +62,23 @@ public class Member {
         this.totalPoint = totalPoint;
     }
 
-    public void addPoint(int point) {
-        this.totalPoint += point;
+    public Grade getGrade() {
+        return grade;
     }
 
-    public String toCsvString() {
-        return String.join(", ", userName, email, address, String.valueOf(active), String.valueOf(totalPoint));
+    public void setGrade(Grade grade) {
+        this.grade = grade;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
+    public void addPoint(int point) {
+        this.totalPoint += point;
     }
 }

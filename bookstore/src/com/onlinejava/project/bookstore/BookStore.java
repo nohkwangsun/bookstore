@@ -4,6 +4,7 @@ import com.onlinejava.project.bookstore.core.cli.CliCommand;
 import com.onlinejava.project.bookstore.core.cli.CliCommandInterface;
 import com.onlinejava.project.bookstore.core.cli.CommandInvocationHandler;
 import com.onlinejava.project.bookstore.domain.Book;
+import com.onlinejava.project.bookstore.domain.Grade;
 import com.onlinejava.project.bookstore.domain.Member;
 import com.onlinejava.project.bookstore.domain.Purchase;
 
@@ -296,12 +297,23 @@ public class BookStore {
                 .filter(book -> book.getStock() > 0)
                 .forEach(book -> {
                     book.setStock(book.getStock() - 1);
-                    Purchase purchase = new Purchase(titleToBuy, customer, 1, book.getPrice(), Math.round(book.getPrice() * 0.5f));
+                    Purchase purchase = new Purchase(titleToBuy, customer, 1, book.getPrice(), getPoint(book, customer));
                     getPurchaseList().add(purchase);
                     getMemberList().stream()
                             .filter(member -> member.getUserName().equals(customer))
-                            .forEach(member -> member.addPoint(Math.round(book.getPrice() * 0.5f)));
+                            .forEach(member -> member.addPoint(getPoint(book, customer)));
                 });
+    }
+
+    private int getPoint(Book book, String customer) {
+        return getMemberList().stream()
+                .filter(m -> m.getUserName().equals(customer))
+                .map(m -> getPointByMember(book, m))
+                .findFirst().orElseThrow();
+    }
+
+    private int getPointByMember(Book book, Member member) {
+        return member.getGrade().calculatePoint(book.getPrice());
     }
 
     private List<Purchase> getPurchaseList() {
