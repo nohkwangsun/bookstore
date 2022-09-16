@@ -44,7 +44,13 @@ public class MemberCommands {
             String newEmail = scanner.nextLine().trim();
             System.out.printf("Type address [default:%s] :", member.getAddress());
             String newAddress = scanner.nextLine().trim();
-            bookstore.modifyMember(userNameToModify, new Member(newUserName, newEmail, newAddress, member.getTotalPoint(), member.isActive()));
+            Member newMember = new Member();
+            newMember.setUserName(newUserName);
+            newMember.setEmail(newEmail);
+            newMember.setAddress(newAddress);
+            newMember.setTotalPoint(member.getTotalPoint());
+            newMember.setActive(member.isActive());
+            bookstore.modifyMember(userNameToModify, newMember);
         });
     }
 }
