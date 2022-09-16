@@ -7,6 +7,6 @@ cd "${WORKING_DIR}"
 git stash
 git pull
 
-find . -name "*.java" > sources.txt
+find bookstore/src -name "*.java" > sources.txt
 javac -d bookstore/out @sources.txt
 rm sources.txt
