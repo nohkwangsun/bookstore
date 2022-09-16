@@ -27,3 +27,6 @@ hs_err_pid*
 
 *.pid
 *.out
+*/out/
+
+requirements.txt

@@ -1,4 +1,4 @@
-package com.onlinejava.project.bookstore.core;
+package com.onlinejava.project.bookstore.core.util;
 
 import java.lang.reflect.Field;
 

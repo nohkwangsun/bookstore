@@ -1,2 +1,3 @@
-김종국, kjk@running.com, 11 sbs road, 5000, true
-유재석, yjs@running.com, 15 sbs road, 10000, true
+userName, email, address, totalPoint, grade, active
+김종국, kjk@running.com, 11 sbs road, 5000, GENERAL, true
+유재석, yjs@running.com, 15 sbs road, 10000, GENERAL, true

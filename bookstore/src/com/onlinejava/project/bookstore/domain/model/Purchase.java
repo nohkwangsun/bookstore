@@ -1,5 +1,7 @@
 package com.onlinejava.project.bookstore.domain.model;
 
+import java.util.Objects;
+
 public class Purchase extends Model {
     private String title;
     private String customer;
@@ -58,11 +60,20 @@ public class Purchase extends Model {
                 '}';
     }
 
-    public Purchase(String title, String customer, int numberOfPurchase, int totalPrice, int point) {
-        this.title = title;
-        this.customer = customer;
-        this.numberOfPurchase = numberOfPurchase;
-        this.totalPrice = totalPrice;
-        this.point = point;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Purchase purchase = (Purchase) o;
+        return numberOfPurchase == purchase.numberOfPurchase
+                && totalPrice == purchase.totalPrice
+                && point == purchase.point
+                && Objects.equals(title, purchase.title)
+                && Objects.equals(customer, purchase.customer);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(title, customer, numberOfPurchase, totalPrice, point);
     }
 }
