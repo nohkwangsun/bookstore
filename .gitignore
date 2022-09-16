@@ -27,6 +27,7 @@ hs_err_pid*
 
 *.pid
 *.out
-*/out/
+certificate/
 
+*/out/
 requirements.txt
