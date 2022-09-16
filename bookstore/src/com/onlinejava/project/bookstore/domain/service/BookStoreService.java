@@ -26,6 +26,7 @@ import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.summarizingInt;
 
 public class BookStoreService {
+    // TODO: 패키지 구조는 헥사고날 아키텍처로
     public static BookStoreService bookStoreService = new BookStoreService();
     private List<Book> bookList;
     private List<Purchase> purchaseList;
@@ -47,6 +48,7 @@ public class BookStoreService {
 
     {
 
+        // TODO: 초기화 작업은 별도 클래스에서
         try (
                 InputStream resourceIStream = ClassLoader.getSystemClassLoader().getResourceAsStream(Main.COMMAND_PACKAGE.replaceAll("[.]", "/"));
                 InputStreamReader resourceISR = new InputStreamReader(resourceIStream);
@@ -134,6 +136,7 @@ public class BookStoreService {
         }
     }
 
+    // TODO: 프록시 처리 별도 파일 생성
     private static CliCommandInterface commandToProxy(CliCommandInterface cmd) {
         ClassLoader classLoader = CliCommandInterface.class.getClassLoader();
         Class[] interfaces = {CliCommandInterface.class};
@@ -229,6 +232,7 @@ public class BookStoreService {
     }
 
     public void saveAsFile() {
+        // TODO: 파일쓰기 중복 제거
         try {
             File tmpFile = new File("memberlist.csv.tmp");
             tmpFile.createNewFile();
