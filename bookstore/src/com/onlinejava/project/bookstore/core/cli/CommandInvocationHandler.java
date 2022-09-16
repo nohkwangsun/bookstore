@@ -3,7 +3,7 @@ package com.onlinejava.project.bookstore.core.cli;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
-import static com.onlinejava.project.bookstore.core.cli.CliCommandInterface.scanner;
+import static com.onlinejava.project.bookstore.Main.scanner;
 
 public class CommandInvocationHandler implements InvocationHandler {
     private CliCommandInterface cliCommand;

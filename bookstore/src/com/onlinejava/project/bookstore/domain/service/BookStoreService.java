@@ -26,6 +26,7 @@ import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.summarizingInt;
 
 public class BookStoreService {
+    public static BookStoreService bookStoreService = new BookStoreService();
     private List<Book> bookList;
     private List<Purchase> purchaseList;
     private List<Member> memberList;

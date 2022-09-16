@@ -2,6 +2,8 @@ package com.onlinejava.project.bookstore.cli.commands;
 
 import com.onlinejava.project.bookstore.core.cli.CliCommandInterface;
 
+import static com.onlinejava.project.bookstore.domain.service.BookStoreService.bookStoreService;
+
 @SuppressWarnings({"unused"})
 public class SaveCommand implements CliCommandInterface {
     @Override
@@ -21,6 +23,6 @@ public class SaveCommand implements CliCommandInterface {
 
     @Override
     public void run() {
-        bookstore.saveAsFile();
+        bookStoreService.saveAsFile();
     }
 }
