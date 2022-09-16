@@ -1,5 +1,7 @@
 package com.onlinejava.project.bookstore.domain.model;
 
+import java.util.Objects;
+
 public class Member extends Model {
     private String userName;
     private String email;
@@ -7,19 +9,6 @@ public class Member extends Model {
     private int totalPoint;
     private Grade grade;
     private boolean active;
-
-    public Member(String userName, String email, String address, int totalPoint, boolean active) {
-        this(userName, email, address, totalPoint, Grade.GENERAL, active);
-    }
-
-    public Member(String userName, String email, String address, int totalPoint, Grade grade, boolean active) {
-        this.userName = userName;
-        this.email = email;
-        this.address = address;
-        this.totalPoint = totalPoint;
-        this.grade = grade;
-        this.active = active;
-    }
 
     @Override
     public String toString() {
@@ -85,4 +74,21 @@ public class Member extends Model {
         this.totalPoint += point;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Member member = (Member) o;
+        return totalPoint == member.totalPoint
+                && active == member.active
+                && Objects.equals(userName, member.userName)
+                && Objects.equals(email, member.email)
+                && Objects.equals(address, member.address)
+                && grade == member.grade;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(userName, email, address, totalPoint, grade, active);
+    }
 }

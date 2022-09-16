@@ -1,5 +1,7 @@
 package com.onlinejava.project.bookstore.domain.model;
 
+import java.util.Objects;
+
 public class Book extends Model {
     private String title;
     private String writer;
@@ -14,20 +16,6 @@ public class Book extends Model {
     }
 
     public void setStock(int stock) {
-        this.stock = stock;
-    }
-
-    public Book(String title, String writer, String publisher, int price, String releaseDate, String location) {
-        this(title, writer, publisher, price, releaseDate, location, 1);
-    }
-
-    public Book(String title, String writer, String publisher, int price, String releaseDate, String location, int stock) {
-        this.title = title;
-        this.writer = writer;
-        this.publisher = publisher;
-        this.price = price;
-        this.releaseDate = releaseDate;
-        this.location = location;
         this.stock = stock;
     }
 
@@ -96,4 +84,23 @@ public class Book extends Model {
         this.setStock(this.getStock() + stock);
     }
 
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Book book = (Book) o;
+        return price == book.price
+                && stock == book.stock
+                && Objects.equals(title, book.title)
+                && Objects.equals(writer, book.writer)
+                && Objects.equals(publisher, book.publisher)
+                && Objects.equals(releaseDate, book.releaseDate)
+                && Objects.equals(location, book.location);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(title, writer, publisher, price, releaseDate, location, stock);
+    }
 }

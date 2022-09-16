@@ -41,7 +41,13 @@ public class BookCommands {
         System.out.print("Type location:");
         String location = scanner.nextLine().trim();
 
-        Book newBook = new Book(title, writer, publisher, price, releaseDate, location);
+        Book newBook = new Book();
+        newBook.setTitle(title);
+        newBook.setTitle(writer);
+        newBook.setPublisher(publisher);
+        newBook.setPrice(price);
+        newBook.setReleaseDate(releaseDate);
+        newBook.setLocation(location);
         bookstore.createBook(newBook);
     }
 

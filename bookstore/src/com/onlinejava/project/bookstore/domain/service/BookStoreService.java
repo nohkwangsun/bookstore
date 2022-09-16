@@ -1,17 +1,17 @@
 package com.onlinejava.project.bookstore.domain.service;
 
+import com.onlinejava.project.bookstore.Main;
 import com.onlinejava.project.bookstore.core.cli.CliCommand;
 import com.onlinejava.project.bookstore.core.cli.CliCommandInterface;
 import com.onlinejava.project.bookstore.core.cli.CommandInvocationHandler;
-import com.onlinejava.project.bookstore.domain.model.Book;
-import com.onlinejava.project.bookstore.domain.model.Grade;
+import com.onlinejava.project.bookstore.core.function.Consumers;
+import com.onlinejava.project.bookstore.core.function.Functions;
+import com.onlinejava.project.bookstore.core.reflect.ModelSetter;
 import com.onlinejava.project.bookstore.domain.model.Member;
-import com.onlinejava.project.bookstore.domain.model.Purchase;
+import com.onlinejava.project.bookstore.domain.model.*;
 
 import java.io.*;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
+import java.lang.reflect.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -22,7 +22,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import static com.onlinejava.project.bookstore.core.Functions.unchecked;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.summarizingInt;
 
@@ -32,42 +31,36 @@ public class BookStoreService {
     private List<Member> memberList;
     private Map<String, CliCommandInterface> commands;
 
-    public static final String COMMAND_PACKAGE = "com.onlinejava.project.bookstore.cli.commands";
+
+    public void setBookList(List<Book> bookList) {
+        this.bookList = bookList;
+    }
+
+    public void setPurchaseList(List<Purchase> purchaseList) {
+        this.purchaseList = purchaseList;
+    }
+
+    public void setMemberList(List<Member> memberList) {
+        this.memberList = memberList;
+    }
 
     {
-        bookList = getFileLines("booklist.csv")
-                .map(line -> {
-                    List<String> book = Arrays.stream(line.split(",")).map(String::trim).toList();
-                    return new Book(book.get(0), book.get(1), book.get(2), Integer.parseInt(book.get(3)), book.get(4), book.get(5));
-                }).collect(Collectors.toList());
-
-        purchaseList = getFileLines("purchaselist.csv")
-                .map(line -> {
-                    List<String> purchase = Arrays.stream(line.split(",")).map(String::trim).toList();
-                    return new Purchase(purchase.get(0), purchase.get(1), Integer.parseInt(purchase.get(2)), Integer.parseInt(purchase.get(3)), Integer.parseInt(purchase.get(4)));
-                }).collect(Collectors.toList());
-
-        memberList = getFileLines("memberlist.csv")
-                .map(line -> {
-                    List<String> member = Arrays.stream(line.split(",")).map(String::trim).toList();
-                    return new Member(member.get(0), member.get(1), member.get(2), Integer.parseInt(member.get(3)), Boolean.valueOf(member.get(4)));
-                }).collect(Collectors.toList());
 
         try (
-                InputStream resourceIStream = ClassLoader.getSystemClassLoader().getResourceAsStream(COMMAND_PACKAGE.replaceAll("[.]", "/"));
+                InputStream resourceIStream = ClassLoader.getSystemClassLoader().getResourceAsStream(Main.COMMAND_PACKAGE.replaceAll("[.]", "/"));
                 InputStreamReader resourceISR = new InputStreamReader(resourceIStream);
                 BufferedReader resourceReader = new BufferedReader(resourceISR)
         ) {
 
             List<Class> classesInPackage = resourceReader.lines()
                     .filter(line -> line.endsWith(".class"))
-                    .map(unchecked(line -> Class.forName(COMMAND_PACKAGE + "." + line.substring(0, line.length() - 6))))
+                    .map(Functions.unchecked(line -> Class.forName(Main.COMMAND_PACKAGE + "." + line.substring(0, line.length() - 6))))
                     .collect(Collectors.toUnmodifiableList());
 
             Stream<CliCommandInterface> cliCommandInterfaceStream = classesInPackage.stream()
                     .filter(clazz -> CliCommandInterface.class.isAssignableFrom(clazz))
                     .filter(clazz -> !clazz.isInterface())
-                    .map(unchecked(clazz -> (CliCommandInterface) clazz.getDeclaredConstructor().newInstance()));
+                    .map(Functions.unchecked(clazz -> (CliCommandInterface) clazz.getDeclaredConstructor().newInstance()));
 
             Stream<CliCommandInterface> annotatedCommandStream = classesInPackage.stream()
                     .filter(clazz -> clazz.isAnnotationPresent(CliCommand.class))
@@ -83,6 +76,53 @@ public class BookStoreService {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public <T extends Model> List<T> getModelListFromLines(String filePath, Class<T> clazz) {
+        List<String> lines = getFileLines(filePath).toList();
+        return getModelListFromLines(lines, clazz, Main.HAS_HEADER);
+    }
+
+    public <T extends Model> List<T> getModelListFromLines(List<String> lines, Class<T> clazz, boolean hasHeader) {
+        return hasHeader
+                ? getModelListFromLinesWithHeader(lines, clazz)
+                : getModelListFromLinesWithoutHeader(lines, clazz);
+    }
+
+    public <T extends Model> List<T> getModelListFromLinesWithHeader(List<String> lines, Class<T> clazz) {
+        if (lines.size() <= 1) {
+            return Collections.emptyList();
+        }
+
+        String[] headers = lines.get(0).split(",");
+        return lines.stream().skip(1)
+                .map(line -> {
+
+                    ModelSetter<T> ObjectSetter = new ModelSetter(clazz);
+                    String[] values = Arrays.stream(line.split(",")).map(String::trim).toArray(String[]::new);
+                    for (int i = 0; i < headers.length; i++) {
+                        ObjectSetter.set(headers[i], values[i]);
+                    }
+
+                    return ObjectSetter.getObject();
+                })
+                .collect(Collectors.toList());
+    }
+
+    public <T extends Model> List<T> getModelListFromLinesWithoutHeader(List<String> lines, Class<T> clazz) {
+        return lines.stream()
+                .map(line -> {
+
+                    ModelSetter<T> ObjectSetter = new ModelSetter(clazz);
+                    Field[] fields = clazz.getDeclaredFields();
+                    String[] values = Arrays.stream(line.split(",")).map(String::trim).toArray(String[]::new);
+                    for (int i = 0; i < fields.length && i < values.length; i++) {
+                        ObjectSetter.set(fields[i].getName(), values[i]);
+                    }
+
+                    return ObjectSetter.getObject();
+                })
+                .collect(Collectors.toList());
     }
 
     private Stream<String> getFileLines(String first) {
@@ -191,13 +231,14 @@ public class BookStoreService {
         try {
             File tmpFile = new File("memberlist.csv.tmp");
             tmpFile.createNewFile();
-            getMemberList().forEach(member -> {
-                try {
+
+            if (Main.HAS_HEADER) {
+                Files.writeString(Path.of("memberlist.csv.tmp"), Model.toCsvHeader(Member.class) + "\n", StandardOpenOption.APPEND);
+            }
+            getMemberList().forEach(Consumers.unchecked((Member member) -> {
                     Files.writeString(Path.of("memberlist.csv.tmp"), member.toCsvString() + "\n", StandardOpenOption.APPEND);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            });
+            }));
+
             Files.move(Path.of("memberlist.csv.tmp"), Path.of("memberlist.csv"), StandardCopyOption.REPLACE_EXISTING);
             tmpFile.delete();
         } catch (IOException e) {
@@ -208,6 +249,10 @@ public class BookStoreService {
         try {
             File bookTmpFile = new File("booklist.csv.tmp");
             bookTmpFile.createNewFile();
+
+            if (Main.HAS_HEADER) {
+                Files.writeString(Path.of("booklist.csv.tmp"), Model.toCsvHeader(Book.class) + "\n", StandardOpenOption.APPEND);
+            }
             getBookList().forEach(book -> {
                 try {
                     Files.writeString(Path.of("booklist.csv.tmp"), book.toCsvString() + "\n", StandardOpenOption.APPEND);
@@ -215,6 +260,7 @@ public class BookStoreService {
                     throw new RuntimeException(e);
                 }
             });
+
             Files.move(Path.of("booklist.csv.tmp"), Path.of("booklist.csv"), StandardCopyOption.REPLACE_EXISTING);
             bookTmpFile.delete();
         } catch (IOException e) {
@@ -225,6 +271,10 @@ public class BookStoreService {
         try {
             File purchaseTmpFile = new File("purchaselist.csv.tmp");
             purchaseTmpFile.createNewFile();
+
+            if (Main.HAS_HEADER) {
+                Files.writeString(Path.of("purchaselist.csv.tmp"), Model.toCsvHeader(Purchase.class) + "\n", StandardOpenOption.APPEND);
+            }
             getPurchaseList().forEach(purchase -> {
                 try {
                     Files.writeString(Path.of("purchaselist.csv.tmp"), purchase.toCsvString() + "\n", StandardOpenOption.APPEND);
@@ -232,6 +282,7 @@ public class BookStoreService {
                     throw new RuntimeException(e);
                 }
             });
+
             Files.move(Path.of("purchaselist.csv.tmp"), Path.of("purchaselist.csv"), StandardCopyOption.REPLACE_EXISTING);
             purchaseTmpFile.delete();
         } catch (IOException e) {
@@ -268,7 +319,14 @@ public class BookStoreService {
     }
 
     public void addMember(String userName, String email, String address) {
-        getMemberList().add(new Member(userName, email, address, 0, true));
+        Member member = new Member();
+        member.setUserName(userName);
+        member.setEmail(email);
+        member.setAddress(address);
+        member.setTotalPoint(0);
+        member.setGrade(Grade.BRONZE);
+        member.setActive(true);
+        getMemberList().add(member);
     }
 
     public void printMemberList() {
@@ -300,7 +358,12 @@ public class BookStoreService {
                 .filter(book -> book.getStock() > 0)
                 .forEach(book -> {
                     book.setStock(book.getStock() - 1);
-                    Purchase purchase = new Purchase(titleToBuy, customer, 1, book.getPrice(), getPoint(book, customer));
+                    Purchase purchase = new Purchase();
+                    purchase.setTitle(titleToBuy);
+                    purchase.setCustomer(customer);
+                    purchase.setNumberOfPurchase(1);
+                    purchase.setTotalPrice(book.getPrice());
+                    purchase.setPoint(getPoint(book, customer));
                     getPurchaseList().add(purchase);
                     getMemberByUserName(customer)
                             .ifPresent(member -> member.addPoint(getPoint(book, customer)));
