@@ -1,6 +1,6 @@
-package com.onlinejava.project.bookstore.domain;
+package com.onlinejava.project.bookstore.domain.model;
 
-public class Member extends Entity {
+public class Member extends Model {
     private String userName;
     private String email;
     private String address;
@@ -8,14 +8,17 @@ public class Member extends Entity {
     private Grade grade;
     private boolean active;
 
-
     public Member(String userName, String email, String address, int totalPoint, boolean active) {
+        this(userName, email, address, totalPoint, Grade.GENERAL, active);
+    }
+
+    public Member(String userName, String email, String address, int totalPoint, Grade grade, boolean active) {
         this.userName = userName;
         this.email = email;
         this.address = address;
         this.totalPoint = totalPoint;
+        this.grade = grade;
         this.active = active;
-        this.grade = Grade.GENERAL;
     }
 
     @Override
@@ -25,9 +28,17 @@ public class Member extends Entity {
                 ", email='" + email + '\'' +
                 ", address='" + address + '\'' +
                 ", totalPoint=" + totalPoint +
-                ", active=" + active +
                 ", grade=" + grade +
+                ", active=" + active +
                 '}';
+    }
+
+    public Grade getGrade() {
+        return grade;
+    }
+
+    public void setGrade(Grade grade) {
+        this.grade = grade;
     }
 
     public String getUserName() {
@@ -54,22 +65,6 @@ public class Member extends Entity {
         this.address = address;
     }
 
-    public int getTotalPoint() {
-        return totalPoint;
-    }
-
-    public void setTotalPoint(int totalPoint) {
-        this.totalPoint = totalPoint;
-    }
-
-    public Grade getGrade() {
-        return grade;
-    }
-
-    public void setGrade(Grade grade) {
-        this.grade = grade;
-    }
-
     public boolean isActive() {
         return active;
     }
@@ -78,7 +73,16 @@ public class Member extends Entity {
         this.active = active;
     }
 
+    public int getTotalPoint() {
+        return totalPoint;
+    }
+
+    public void setTotalPoint(int totalPoint) {
+        this.totalPoint = totalPoint;
+    }
+
     public void addPoint(int point) {
         this.totalPoint += point;
     }
+
 }

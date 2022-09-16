@@ -1,6 +1,6 @@
-package com.onlinejava.project.bookstore.domain;
+package com.onlinejava.project.bookstore.domain.model;
 
-public class Book extends Entity {
+public class Book extends Model {
     private String title;
     private String writer;
     private String publisher;
@@ -95,4 +95,5 @@ public class Book extends Entity {
     public void addStock(int stock) {
         this.setStock(this.getStock() + stock);
     }
+
 }

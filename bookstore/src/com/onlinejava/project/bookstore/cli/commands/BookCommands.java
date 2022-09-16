@@ -1,7 +1,7 @@
 package com.onlinejava.project.bookstore.cli.commands;
 
-import com.onlinejava.project.bookstore.domain.Book;
 import com.onlinejava.project.bookstore.core.cli.CliCommand;
+import com.onlinejava.project.bookstore.domain.model.Book;
 
 import static com.onlinejava.project.bookstore.core.cli.CliCommandInterface.bookstore;
 import static com.onlinejava.project.bookstore.core.cli.CliCommandInterface.scanner;

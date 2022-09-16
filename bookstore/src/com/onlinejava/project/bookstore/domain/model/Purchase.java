@@ -1,12 +1,10 @@
-package com.onlinejava.project.bookstore.domain;
+package com.onlinejava.project.bookstore.domain.model;
 
-public class Purchase extends Entity {
+public class Purchase extends Model {
     private String title;
     private String customer;
     private int numberOfPurchase;
-
     private int totalPrice;
-
     private int point;
 
     public int getTotalPrice() {
