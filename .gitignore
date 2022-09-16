@@ -30,4 +30,5 @@ hs_err_pid*
 certificate/
 
 */out/
+bookstore/test/
 requirements.txt
