@@ -1,14 +1,8 @@
 package com.onlinejava.project.bookstore.core.cli;
 
-import com.onlinejava.project.bookstore.domain.service.BookStoreService;
-
-import java.util.Scanner;
 import java.util.regex.Pattern;
 
 public interface CliCommandInterface {
-    Scanner scanner = new Scanner(System.in);
-    BookStoreService bookstore = new BookStoreService();
-
     String getCommandID();
 
     String getTitle();
