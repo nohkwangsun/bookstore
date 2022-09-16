@@ -1,11 +1,12 @@
-package com.onlinejava.project.bookstore;
+package com.onlinejava.project.bookstore.domain.service;
 
 import com.onlinejava.project.bookstore.core.cli.CliCommand;
 import com.onlinejava.project.bookstore.core.cli.CliCommandInterface;
 import com.onlinejava.project.bookstore.core.cli.CommandInvocationHandler;
-import com.onlinejava.project.bookstore.domain.Book;
-import com.onlinejava.project.bookstore.domain.Member;
-import com.onlinejava.project.bookstore.domain.Purchase;
+import com.onlinejava.project.bookstore.domain.model.Book;
+import com.onlinejava.project.bookstore.domain.model.Grade;
+import com.onlinejava.project.bookstore.domain.model.Member;
+import com.onlinejava.project.bookstore.domain.model.Purchase;
 
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
@@ -22,10 +23,10 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static com.onlinejava.project.bookstore.core.Functions.unchecked;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.summarizingInt;
 
-public class BookStore {
-
-
+public class BookStoreService {
     private List<Book> bookList;
     private List<Purchase> purchaseList;
     private List<Member> memberList;
@@ -34,23 +35,23 @@ public class BookStore {
     public static final String COMMAND_PACKAGE = "com.onlinejava.project.bookstore.cli.commands";
 
     {
-            bookList = getFileLines("booklist.csv")
-                    .map(line -> {
-                        List<String> book = Arrays.stream(line.split(",")).map(String::trim).toList();
-                        return new Book(book.get(0), book.get(1), book.get(2), Integer.parseInt(book.get(3)), book.get(4), book.get(5));
-                    }).collect(Collectors.toList());
+        bookList = getFileLines("booklist.csv")
+                .map(line -> {
+                    List<String> book = Arrays.stream(line.split(",")).map(String::trim).toList();
+                    return new Book(book.get(0), book.get(1), book.get(2), Integer.parseInt(book.get(3)), book.get(4), book.get(5));
+                }).collect(Collectors.toList());
 
-            purchaseList = getFileLines("purchaselist.csv")
-                    .map(line -> {
-                        List<String> purchase = Arrays.stream(line.split(",")).map(String::trim).toList();
-                        return new Purchase(purchase.get(0), purchase.get(1), Integer.parseInt(purchase.get(2)), Integer.parseInt(purchase.get(3)), Integer.parseInt(purchase.get(4)));
-                    }).collect(Collectors.toList());
+        purchaseList = getFileLines("purchaselist.csv")
+                .map(line -> {
+                    List<String> purchase = Arrays.stream(line.split(",")).map(String::trim).toList();
+                    return new Purchase(purchase.get(0), purchase.get(1), Integer.parseInt(purchase.get(2)), Integer.parseInt(purchase.get(3)), Integer.parseInt(purchase.get(4)));
+                }).collect(Collectors.toList());
 
-            memberList = getFileLines("memberlist.csv")
-                    .map(line -> {
-                        List<String> member = Arrays.stream(line.split(",")).map(String::trim).toList();
-                        return new Member(member.get(0), member.get(1), member.get(2), Integer.parseInt(member.get(3)), Boolean.valueOf(member.get(4)));
-                    }).collect(Collectors.toList());
+        memberList = getFileLines("memberlist.csv")
+                .map(line -> {
+                    List<String> member = Arrays.stream(line.split(",")).map(String::trim).toList();
+                    return new Member(member.get(0), member.get(1), member.get(2), Integer.parseInt(member.get(3)), Boolean.valueOf(member.get(4)));
+                }).collect(Collectors.toList());
 
         try (
                 InputStream resourceIStream = ClassLoader.getSystemClassLoader().getResourceAsStream(COMMAND_PACKAGE.replaceAll("[.]", "/"));
@@ -73,10 +74,10 @@ public class BookStore {
                     .flatMap(clazz -> Arrays.stream(clazz.getDeclaredMethods()))
                     .filter(method -> method.isAnnotationPresent(CliCommand.class))
                     .filter(method -> method.getParameterCount() == 0)
-                    .map(BookStore::methodToCliCommand);
+                    .map(BookStoreService::methodToCliCommand);
 
             commands = Stream.concat(cliCommandInterfaceStream, annotatedCommandStream)
-                    .map(BookStore::commandToProxy)
+                    .map(BookStoreService::commandToProxy)
                     .collect(Collectors.toMap(CliCommandInterface::getCommandID, Function.identity()));
 
         } catch (IOException e) {
@@ -239,9 +240,8 @@ public class BookStore {
     }
 
     public void modifyMember(String userNameToModify, Member member) {
-        getMemberList().stream()
-                .filter(exMember -> exMember.getUserName().equals(userNameToModify))
-                .forEach(exMember -> {
+        getMemberByUserName(userNameToModify)
+                .ifPresent(exMember -> {
                     if (!member.getUserName().isBlank()) {
                         exMember.setUserName(member.getUserName());
                     }
@@ -256,16 +256,15 @@ public class BookStore {
                 });
     }
 
-    public Optional<Member> getMemberByUserName(String userNameToModify) {
+    public Optional<Member> getMemberByUserName(String userName) {
         return getMemberList().stream()
-                    .filter(member -> member.getUserName().equals(userNameToModify))
-                    .findFirst();
+                .filter(member -> member.getUserName().equals(userName))
+                .findFirst();
     }
 
     public void withdrawMember(String userName) {
-        getMemberList().stream()
-                .filter(member -> member.getUserName().equals(userName))
-                .forEach(member -> member.setActive(false));
+        getMemberByUserName(userName)
+                .ifPresent(member -> member.setActive(false));
     }
 
     public void addMember(String userName, String email, String address) {
@@ -301,12 +300,21 @@ public class BookStore {
                 .filter(book -> book.getStock() > 0)
                 .forEach(book -> {
                     book.setStock(book.getStock() - 1);
-                    Purchase purchase = new Purchase(titleToBuy, customer, 1, book.getPrice(), Math.round(book.getPrice() * 0.5f));
+                    Purchase purchase = new Purchase(titleToBuy, customer, 1, book.getPrice(), getPoint(book, customer));
                     getPurchaseList().add(purchase);
-                    getMemberList().stream()
-                            .filter(member -> member.getUserName().equals(customer))
-                            .forEach(member -> member.addPoint(Math.round(book.getPrice() * 0.5f)));
+                    getMemberByUserName(customer)
+                            .ifPresent(member -> member.addPoint(getPoint(book, customer)));
                 });
+    }
+
+    private int getPoint(Book book, String customer) {
+        return getMemberByUserName(customer)
+                .map(m -> getPointByMember(book, m))
+                .orElseThrow();
+    }
+
+    private int getPointByMember(Book book, Member member) {
+        return member.getGrade().calculatePoint(book.getPrice());
     }
 
     private List<Purchase> getPurchaseList() {
@@ -358,4 +366,13 @@ public class BookStore {
         return bookList;
     }
 
+    public void updateMemberGrades() {
+        getPurchaseList().stream()
+                .collect(groupingBy(Purchase::getCustomer, summarizingInt(Purchase::getTotalPrice)))
+                .forEach((user, stat) -> {
+                    Grade newGrade = Grade.getGradeByTotalPrice(stat.getSum());
+                    getMemberByUserName(user).ifPresent(member -> member.setGrade(newGrade));
+                });
+
+    }
 }

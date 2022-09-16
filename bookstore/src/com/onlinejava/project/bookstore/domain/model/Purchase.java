@@ -1,12 +1,10 @@
-package com.onlinejava.project.bookstore.domain;
+package com.onlinejava.project.bookstore.domain.model;
 
-public class Purchase {
+public class Purchase extends Model {
     private String title;
     private String customer;
     private int numberOfPurchase;
-
     private int totalPrice;
-
     private int point;
 
     public int getTotalPrice() {
@@ -66,9 +64,5 @@ public class Purchase {
         this.numberOfPurchase = numberOfPurchase;
         this.totalPrice = totalPrice;
         this.point = point;
-    }
-
-    public String toCsvString() {
-        return String.join(", ", title, customer, String.valueOf(numberOfPurchase), String.valueOf(totalPrice), String.valueOf(point));
     }
 }

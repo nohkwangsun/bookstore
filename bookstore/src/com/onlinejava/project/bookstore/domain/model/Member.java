@@ -1,18 +1,23 @@
-package com.onlinejava.project.bookstore.domain;
+package com.onlinejava.project.bookstore.domain.model;
 
-public class Member {
+public class Member extends Model {
     private String userName;
     private String email;
     private String address;
-
     private int totalPoint;
+    private Grade grade;
     private boolean active;
 
     public Member(String userName, String email, String address, int totalPoint, boolean active) {
+        this(userName, email, address, totalPoint, Grade.GENERAL, active);
+    }
+
+    public Member(String userName, String email, String address, int totalPoint, Grade grade, boolean active) {
         this.userName = userName;
         this.email = email;
         this.address = address;
         this.totalPoint = totalPoint;
+        this.grade = grade;
         this.active = active;
     }
 
@@ -23,8 +28,17 @@ public class Member {
                 ", email='" + email + '\'' +
                 ", address='" + address + '\'' +
                 ", totalPoint=" + totalPoint +
+                ", grade=" + grade +
                 ", active=" + active +
                 '}';
+    }
+
+    public Grade getGrade() {
+        return grade;
+    }
+
+    public void setGrade(Grade grade) {
+        this.grade = grade;
     }
 
     public String getUserName() {
@@ -71,7 +85,4 @@ public class Member {
         this.totalPoint += point;
     }
 
-    public String toCsvString() {
-        return String.join(", ", userName, email, address, String.valueOf(active), String.valueOf(totalPoint));
-    }
 }
