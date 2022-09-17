@@ -232,64 +232,26 @@ public class BookStoreService {
     }
 
     public void saveAsFile() {
-        // TODO: 파일쓰기 중복 제거
+        saveModelToCSVFile("memberlist.csv", getMemberList(), Member.class, Main.HAS_HEADER);
+        saveModelToCSVFile("booklist.csv", getBookList(), Book.class, Main.HAS_HEADER);
+        saveModelToCSVFile("purchaselist.csv", getPurchaseList(), Purchase.class, Main.HAS_HEADER);
+    }
+
+    private <T extends Model> void saveModelToCSVFile(String fileName, List<T> modelList, Class<T> clazz, boolean hasHeader) {
         try {
-            File tmpFile = new File("memberlist.csv.tmp");
+            String tempFileName = fileName + ".tmp";
+            File tmpFile = new File(tempFileName);
             tmpFile.createNewFile();
 
-            if (Main.HAS_HEADER) {
-                Files.writeString(Path.of("memberlist.csv.tmp"), Model.toCsvHeader(Member.class) + "\n", StandardOpenOption.APPEND);
+            if (hasHeader) {
+                Files.writeString(tmpFile.toPath(), Model.toCsvHeader(clazz) + "\n", StandardOpenOption.APPEND);
             }
-            getMemberList().forEach(Consumers.unchecked((Member member) -> {
-                    Files.writeString(Path.of("memberlist.csv.tmp"), member.toCsvString() + "\n", StandardOpenOption.APPEND);
+            modelList.forEach(Consumers.unchecked((T model) -> {
+                    Files.writeString(Path.of(tempFileName), model.toCsvString() + "\n", StandardOpenOption.APPEND);
             }));
 
-            Files.move(Path.of("memberlist.csv.tmp"), Path.of("memberlist.csv"), StandardCopyOption.REPLACE_EXISTING);
+            Files.move(tmpFile.toPath(), Path.of(fileName), StandardCopyOption.REPLACE_EXISTING);
             tmpFile.delete();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-
-        try {
-            File bookTmpFile = new File("booklist.csv.tmp");
-            bookTmpFile.createNewFile();
-
-            if (Main.HAS_HEADER) {
-                Files.writeString(Path.of("booklist.csv.tmp"), Model.toCsvHeader(Book.class) + "\n", StandardOpenOption.APPEND);
-            }
-            getBookList().forEach(book -> {
-                try {
-                    Files.writeString(Path.of("booklist.csv.tmp"), book.toCsvString() + "\n", StandardOpenOption.APPEND);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            });
-
-            Files.move(Path.of("booklist.csv.tmp"), Path.of("booklist.csv"), StandardCopyOption.REPLACE_EXISTING);
-            bookTmpFile.delete();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-
-        try {
-            File purchaseTmpFile = new File("purchaselist.csv.tmp");
-            purchaseTmpFile.createNewFile();
-
-            if (Main.HAS_HEADER) {
-                Files.writeString(Path.of("purchaselist.csv.tmp"), Model.toCsvHeader(Purchase.class) + "\n", StandardOpenOption.APPEND);
-            }
-            getPurchaseList().forEach(purchase -> {
-                try {
-                    Files.writeString(Path.of("purchaselist.csv.tmp"), purchase.toCsvString() + "\n", StandardOpenOption.APPEND);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            });
-
-            Files.move(Path.of("purchaselist.csv.tmp"), Path.of("purchaselist.csv"), StandardCopyOption.REPLACE_EXISTING);
-            purchaseTmpFile.delete();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
