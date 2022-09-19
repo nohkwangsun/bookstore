@@ -2,14 +2,13 @@ package com.onlinejava.project.bookstore.core.cli;
 
 import com.onlinejava.project.bookstore.Main;
 import com.onlinejava.project.bookstore.core.function.Functions;
+import com.onlinejava.project.bookstore.core.util.reflect.ReflectionUtils;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.net.URL;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -32,36 +31,74 @@ public class CommandCache {
 
 
     public static void loadCommands() {
-        try (
-                InputStream resourceIStream = ClassLoader.getSystemClassLoader().getResourceAsStream(Main.COMMAND_PACKAGE.replaceAll("[.]", "/"));
-                InputStreamReader resourceISR = new InputStreamReader(resourceIStream);
-                BufferedReader resourceReader = new BufferedReader(resourceISR)
-        ) {
+        List<Class> classesInPackage = getClassesFromBasePackage(Main.BASE_PACKAGE);
 
-            List<Class> classesInPackage = resourceReader.lines()
-                    .filter(line -> line.endsWith(".class"))
-                    .map(Functions.unchecked(line -> Class.forName(Main.COMMAND_PACKAGE + "." + line.substring(0, line.length() - 6))))
-                    .collect(Collectors.toUnmodifiableList());
+        Stream<CliCommandInterface> cliCommandInterfaces = getCliCommandInterfaces(classesInPackage);
+        Stream<CliCommandInterface> annotatedCommands = getAnnotatedCommands(classesInPackage);
 
-            Stream<CliCommandInterface> cliCommandInterfaceStream = classesInPackage.stream()
-                    .filter(clazz -> CliCommandInterface.class.isAssignableFrom(clazz))
-                    .filter(clazz -> !clazz.isInterface())
-                    .map(Functions.unchecked(clazz -> (CliCommandInterface) clazz.getDeclaredConstructor().newInstance()));
+        Map<String, CliCommandInterface> commands = Stream.concat(cliCommandInterfaces, annotatedCommands)
+                    .map(CommandCache::commandToProxy)
+                    .collect(Collectors.toMap(CliCommandInterface::getCommandID, Function.identity()));
 
-            Stream<CliCommandInterface> annotatedCommandStream = classesInPackage.stream()
+        CommandCache.addCommands(commands);
+    }
+
+    private static Stream<CliCommandInterface> getAnnotatedCommands(List<Class> classesInPackage) {
+        Stream<CliCommandInterface> annotatedCommandStream = classesInPackage.stream()
                     .filter(clazz -> clazz.isAnnotationPresent(CliCommand.class))
                     .flatMap(clazz -> Arrays.stream(clazz.getDeclaredMethods()))
                     .filter(method -> method.isAnnotationPresent(CliCommand.class))
                     .filter(method -> method.getParameterCount() == 0)
                     .map(CommandCache::methodToCliCommand);
+        return annotatedCommandStream;
+    }
 
-            Map<String, CliCommandInterface> commands = Stream.concat(cliCommandInterfaceStream, annotatedCommandStream)
-                    .map(CommandCache::commandToProxy)
-                    .collect(Collectors.toMap(CliCommandInterface::getCommandID, Function.identity()));
-            CommandCache.addCommands(commands);
+    private static Stream<CliCommandInterface> getCliCommandInterfaces(List<Class> classesInPackage) {
+        Stream<CliCommandInterface> cliCommandInterfaceStream = classesInPackage.stream()
+                .filter(clazz -> CliCommandInterface.class.isAssignableFrom(clazz))
+                .filter(clazz -> !clazz.isInterface())
+                .filter(clazz -> !clazz.isAnonymousClass())
+                .map(Functions.unchecked(clazz -> (CliCommandInterface) clazz.getDeclaredConstructor().newInstance()));
+        return cliCommandInterfaceStream;
+    }
 
+    private static List<Class> getClassesFromBasePackage(String basePackage) {
+        File dir = convertPackageNameToFile(basePackage);
+        return streamPackageNamesFrom(basePackage, dir).stream()
+                .filter(p -> p.startsWith(basePackage))
+                .flatMap(p -> getClassesInPackage(p).stream())
+                .toList();
+    }
+
+    private static File convertPackageNameToFile(String basePackage) {
+        URL resource = ClassLoader.getSystemClassLoader().getResource(basePackage.replaceAll("[.]", "/"));
+        return new File(resource.getFile());
+    }
+
+    private static List<String> streamPackageNamesFrom(String packageName, File dir) {
+        if (!dir.isDirectory() || dir.listFiles().length <= 0) {
+            return List.of();
+        }
+
+        List<String> subDirs = Arrays.stream(dir.listFiles())
+                .flatMap(f -> streamPackageNamesFrom(packageName + "." + f.getName(), f).stream())
+                .collect(Collectors.toList());
+        subDirs.add(packageName);
+        return subDirs;
+    }
+
+    private static List<Class> getClassesInPackage(String basePackage) {
+        InputStream is = ClassLoader.getSystemClassLoader().getResourceAsStream(basePackage.replaceAll("[.]", "/"));
+        InputStreamReader isr = new InputStreamReader(is);
+        BufferedReader reader = new BufferedReader(isr);
+
+        try (is; isr; reader) {
+            return reader.lines()
+                    .filter(line -> line.endsWith(".class"))
+                    .map(Functions.unchecked(line -> Class.forName(basePackage + "." + line.substring(0, line.length() - 6))))
+                    .collect(Collectors.toUnmodifiableList());
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
@@ -75,15 +112,7 @@ public class CommandCache {
     private static CliCommandInterface methodToCliCommand(Method method) {
         CliCommand classCommand = method.getClass().getDeclaredAnnotation(CliCommand.class);
         CliCommand methodCommand = method.getDeclaredAnnotation(CliCommand.class);
-
-        Object instance = null;
-        try {
-            instance = method.getDeclaringClass().getDeclaredConstructor().newInstance();
-        } catch (NoSuchMethodException | InstantiationException | IllegalAccessException |
-                 InvocationTargetException e) {
-            throw new RuntimeException(e);
-        }
-        final Object finalInstance = instance;
+        final Object instance = ReflectionUtils.newInstanceFromMethod(method);
 
         return new CliCommandInterface() {
             @Override
@@ -109,12 +138,13 @@ public class CommandCache {
             @Override
             public void run() {
                 try {
-                    method.invoke(finalInstance);
+                    method.invoke(instance);
                 } catch (IllegalAccessException | InvocationTargetException e) {
                     throw new RuntimeException(e);
                 }
             }
         };
     }
+
 
 }
