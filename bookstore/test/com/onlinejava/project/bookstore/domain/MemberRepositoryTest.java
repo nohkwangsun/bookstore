@@ -1,8 +1,8 @@
 package com.onlinejava.project.bookstore.domain;
 
-import com.onlinejava.project.bookstore.domain.entity.Grade;
-import com.onlinejava.project.bookstore.domain.entity.Member;
-import com.onlinejava.project.bookstore.infrastructure.file.FileMemberRepository;
+import com.onlinejava.project.bookstore.application.domain.entity.Grade;
+import com.onlinejava.project.bookstore.application.domain.entity.Member;
+import com.onlinejava.project.bookstore.adapters.file.FileMemberRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

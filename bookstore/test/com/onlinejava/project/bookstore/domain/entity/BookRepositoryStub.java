@@ -1,7 +1,7 @@
 package com.onlinejava.project.bookstore.domain.entity;
 
-import com.onlinejava.project.bookstore.domain.entity.Book;
-import com.onlinejava.project.bookstore.ports.output.BookRepository;
+import com.onlinejava.project.bookstore.application.domain.entity.Book;
+import com.onlinejava.project.bookstore.application.ports.output.BookRepository;
 
 import java.util.List;
 import java.util.Optional;

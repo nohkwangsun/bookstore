@@ -1,7 +1,11 @@
 package com.onlinejava.project.bookstore.domain;
 
+import com.onlinejava.project.bookstore.application.domain.entity.Book;
+import com.onlinejava.project.bookstore.application.domain.entity.Grade;
+import com.onlinejava.project.bookstore.application.domain.entity.Member;
+import com.onlinejava.project.bookstore.application.domain.entity.Purchase;
 import com.onlinejava.project.bookstore.domain.entity.*;
-import com.onlinejava.project.bookstore.domain.service.PurchaseService;
+import com.onlinejava.project.bookstore.application.domain.service.PurchaseService;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;

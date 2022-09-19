@@ -1,8 +1,8 @@
 package com.onlinejava.project.bookstore.core.util.reflect;
 
 import com.onlinejava.project.bookstore.core.util.StringUtils;
-import com.onlinejava.project.bookstore.domain.entity.Grade;
-import com.onlinejava.project.bookstore.domain.entity.Entity;
+import com.onlinejava.project.bookstore.application.domain.entity.Grade;
+import com.onlinejava.project.bookstore.application.domain.entity.Entity;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
