@@ -23,4 +23,12 @@ public class ReflectionUtils {
             throw new RuntimeException(e);
         }
     }
+
+    public static Object newInstanceFromMethod(Method method) {
+        try {
+            return method.getDeclaringClass().getDeclaredConstructor().newInstance();
+        } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
