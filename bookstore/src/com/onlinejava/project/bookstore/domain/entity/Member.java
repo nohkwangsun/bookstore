@@ -1,8 +1,8 @@
-package com.onlinejava.project.bookstore.domain.model;
+package com.onlinejava.project.bookstore.domain.entity;
 
 import java.util.Objects;
 
-public class Member extends Model {
+public class Member extends Entity {
     private String userName;
     private String email;
     private String address;

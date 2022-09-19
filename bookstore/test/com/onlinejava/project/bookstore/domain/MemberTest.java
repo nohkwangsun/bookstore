@@ -1,7 +1,7 @@
 package com.onlinejava.project.bookstore.domain;
 
-import com.onlinejava.project.bookstore.domain.model.Grade;
-import com.onlinejava.project.bookstore.domain.model.Member;
+import com.onlinejava.project.bookstore.domain.entity.Grade;
+import com.onlinejava.project.bookstore.domain.entity.Member;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;

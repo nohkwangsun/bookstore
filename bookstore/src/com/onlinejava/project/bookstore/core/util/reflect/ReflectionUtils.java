@@ -1,6 +1,6 @@
-package com.onlinejava.project.bookstore.core.reflect;
+package com.onlinejava.project.bookstore.core.util.reflect;
 
-import com.onlinejava.project.bookstore.domain.model.Model;
+import com.onlinejava.project.bookstore.domain.entity.Entity;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -16,7 +16,7 @@ public class ReflectionUtils {
         return methods;
     }
 
-    public static <T extends Model> T newInstance(Class<T> clazz) {
+    public static <T extends Entity> T newInstance(Class<T> clazz) {
         try {
             return (T) clazz.getDeclaredConstructor().newInstance();
         } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {

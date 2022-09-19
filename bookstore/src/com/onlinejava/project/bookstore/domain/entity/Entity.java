@@ -1,4 +1,4 @@
-package com.onlinejava.project.bookstore.domain.model;
+package com.onlinejava.project.bookstore.domain.entity;
 
 
 import com.onlinejava.project.bookstore.core.util.StringUtils;
@@ -9,14 +9,14 @@ import java.util.stream.Collectors;
 
 import static com.onlinejava.project.bookstore.core.function.Functions.unchecked;
 
-public abstract class Model {
+public abstract class Entity {
 
     private String toGetterName(Field f) {
         String prefix = f.getType().equals(boolean.class) ? "is" : "get";
         return prefix + StringUtils.toCapitalize(f.getName());
     }
 
-    public static String toCsvHeader(Class<? extends Model> clazz) {
+    public static String toCsvHeader(Class<? extends Entity> clazz) {
         Field[] fields = clazz.getDeclaredFields();
         return Arrays.stream(fields)
                 .map(field -> field.getName())
