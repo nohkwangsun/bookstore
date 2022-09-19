@@ -1,4 +1,4 @@
-package com.onlinejava.project.bookstore.domain.model;
+package com.onlinejava.project.bookstore.domain.entity;
 
 public enum Grade {
     GOLD(0.01f, 300000),

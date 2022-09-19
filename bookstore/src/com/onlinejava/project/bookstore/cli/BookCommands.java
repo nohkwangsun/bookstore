@@ -1,24 +1,35 @@
-package com.onlinejava.project.bookstore.cli.commands;
+package com.onlinejava.project.bookstore.cli;
 
 import com.onlinejava.project.bookstore.core.cli.CliCommand;
-import com.onlinejava.project.bookstore.domain.model.Book;
+import com.onlinejava.project.bookstore.domain.entity.Book;
+import com.onlinejava.project.bookstore.domain.BookStoreFactory;
+import com.onlinejava.project.bookstore.ports.input.BookUseCase;
 
-import static com.onlinejava.project.bookstore.Main.scanner;
-import static com.onlinejava.project.bookstore.domain.service.BookStoreService.bookStoreService;
+import static com.onlinejava.project.bookstore.domain.BookStoreApplication.scanner;
 
 @CliCommand
 @SuppressWarnings({"unused"})
 public class BookCommands {
+    private BookUseCase service;
+
+    public BookCommands() {
+        this.service = BookStoreFactory.lookup(BookUseCase.class);
+    }
+
+    public BookCommands(BookUseCase service) {
+        this.service = service;
+    }
+
     @CliCommand(ID = "1", title = "Print book list")
     public void printBookList() {
-        bookStoreService.printBookList(bookStoreService.getBookList());
+        service.printBookList(service.getBookList());
     }
     
     @CliCommand(ID = "2", title = "Search a book")
     public void searchBook() {
         System.out.print("Search Keyword:");
         String keyword = scanner.nextLine();
-        bookStoreService.printBookList(bookStoreService.searchBook(keyword));
+        service.printBookList(service.searchBook(keyword));
     }
 
     @CliCommand(ID = "3", title = "Add a new book")
@@ -48,23 +59,14 @@ public class BookCommands {
         newBook.setPrice(price);
         newBook.setReleaseDate(releaseDate);
         newBook.setLocation(location);
-        bookStoreService.createBook(newBook);
+        service.createBook(newBook);
     }
 
     @CliCommand(ID = "4", title = "Delete a book")
     public void deleteBookCommand() {
         System.out.print("Type title:");
         String deletingTitle = scanner.nextLine().trim();
-        bookStoreService.deleteBook(deletingTitle);
-    }
-
-    @CliCommand(ID = "5", title = "Buy a book")
-    public void buyBookCommand() {
-        System.out.print("Type title:");
-        String titleToBuy = scanner.nextLine().trim();
-        System.out.print("Type customer:");
-        String customer = scanner.nextLine().trim();
-        bookStoreService.buyBook(titleToBuy, customer);
+        service.deleteBook(deletingTitle);
     }
 
     @CliCommand(ID = "7", title = "Add book stock")
@@ -73,6 +75,6 @@ public class BookCommands {
         String titleToAddStock = scanner.nextLine().trim();
         System.out.print("Type stock:");
         int stock = Integer.parseInt(scanner.nextLine().trim());
-        bookStoreService.addStock(titleToAddStock, stock);
+        service.addStock(titleToAddStock, stock);
     }
 }

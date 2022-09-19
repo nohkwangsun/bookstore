@@ -1,18 +1,29 @@
-package com.onlinejava.project.bookstore.cli.commands;
+package com.onlinejava.project.bookstore.cli;
 
 import com.onlinejava.project.bookstore.core.cli.CliCommand;
-import com.onlinejava.project.bookstore.domain.model.Member;
+import com.onlinejava.project.bookstore.domain.entity.Member;
+import com.onlinejava.project.bookstore.domain.BookStoreFactory;
+import com.onlinejava.project.bookstore.ports.input.MemberUseCase;
 
-import static com.onlinejava.project.bookstore.Main.scanner;
-import static com.onlinejava.project.bookstore.domain.service.BookStoreService.bookStoreService;
+import static com.onlinejava.project.bookstore.domain.BookStoreApplication.scanner;
 
 @CliCommand
 @SuppressWarnings({"unused"})
 public class MemberCommands {
 
+    private MemberUseCase service;
+
+    public MemberCommands() {
+        service = BookStoreFactory.lookup(MemberUseCase.class);
+    }
+
+    public MemberCommands(MemberUseCase service) {
+        this.service = service;
+    }
+
     @CliCommand(ID = "8", title = "Print member list")
     public void printMemberList() {
-        bookStoreService.printMemberList();
+        service.getActiveMemberList().forEach(System.out::println);
     }
 
     @CliCommand(ID = "9", title = "Add new member")
@@ -23,21 +34,21 @@ public class MemberCommands {
         String email = scanner.nextLine().trim();
         System.out.print("Type address:");
         String address = scanner.nextLine().trim();
-        bookStoreService.addMember(userName, email, address);
+        service.addMember(userName, email, address);
     }
 
     @CliCommand(ID = "10", title = "Withdraw a member")
     public void withdrawMember() {
         System.out.print("Type user name:");
         String userNameToWithdraw = scanner.nextLine().trim();
-        bookStoreService.withdrawMember(userNameToWithdraw);
+        service.withdrawMember(userNameToWithdraw);
     }
 
     @CliCommand(ID = "11", title = "Modify a member")
     public void ModifyMember() {
         System.out.print("Type user name:");
         String userNameToModify = scanner.nextLine().trim();
-        bookStoreService.getMemberByUserName(userNameToModify).ifPresent(member -> {
+        service.getMemberByUserName(userNameToModify).ifPresent(member -> {
             System.out.printf("Type new user name [default:%s] :", member.getUserName());
             String newUserName = scanner.nextLine().trim();
             System.out.printf("Type email [default:%s] :", member.getEmail());
@@ -50,7 +61,7 @@ public class MemberCommands {
             newMember.setAddress(newAddress);
             newMember.setTotalPoint(member.getTotalPoint());
             newMember.setActive(member.isActive());
-            bookStoreService.modifyMember(userNameToModify, newMember);
+            service.modifyMember(userNameToModify, newMember);
         });
     }
 }

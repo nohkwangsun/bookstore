@@ -1,8 +1,8 @@
-package com.onlinejava.project.bookstore.core.reflect;
+package com.onlinejava.project.bookstore.core.util.reflect;
 
 import com.onlinejava.project.bookstore.core.util.StringUtils;
-import com.onlinejava.project.bookstore.domain.model.Grade;
-import com.onlinejava.project.bookstore.domain.model.Model;
+import com.onlinejava.project.bookstore.domain.entity.Grade;
+import com.onlinejava.project.bookstore.domain.entity.Entity;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -10,17 +10,17 @@ import java.lang.reflect.Type;
 import java.util.Map;
 import java.util.function.Supplier;
 
-public class ModelSetter<T extends Model> {
-    private final T model;
+public class SettableEntity<T extends Entity> {
+    private final T entity;
     private final Map<String, Method> methods;
 
-    public ModelSetter(T model) {
-        this.model = model;
-        this.methods = ReflectionUtils.getMethodsMap(model.getClass());
+    public SettableEntity(T entity) {
+        this.entity = entity;
+        this.methods = ReflectionUtils.getMethodsMap(entity.getClass());
     }
-    public ModelSetter(Class<T> clazz) {
-        this.model = ReflectionUtils.newInstance(clazz);
-        this.methods = ReflectionUtils.getMethodsMap(model.getClass());
+    public SettableEntity(Class<T> clazz) {
+        this.entity = ReflectionUtils.newInstance(clazz);
+        this.methods = ReflectionUtils.getMethodsMap(entity.getClass());
     }
 
     public void set(String fieldName, String value) {
@@ -63,34 +63,34 @@ public class ModelSetter<T extends Model> {
         } else {
             throw new IllegalArgumentException(
                     String.format("%s can not be assigned to type [%s] in %s class",
-                            value, type.getTypeName(), model.getClass().getName())
+                            value, type.getTypeName(), entity.getClass().getName())
             );
         }
     }
 
     private Object invoke(Method setter, Object value) {
         try {
-            return setter.invoke(model, value);
+            return setter.invoke(entity, value);
         } catch (IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);
         }
     }
 
     public T getOrElse(Supplier<T> supplier) {
-        if (model == null) {
+        if (entity == null) {
             return supplier.get();
         }
-        return model;
+        return entity;
     }
 
     public T getOrThrow() {
-        if (model == null) {
-            throw new RuntimeException("Model is null");
+        if (entity == null) {
+            throw new RuntimeException("Entity is null");
         }
-        return model;
+        return entity;
     }
 
     public T getObject() {
-        return model;
+        return entity;
     }
 }

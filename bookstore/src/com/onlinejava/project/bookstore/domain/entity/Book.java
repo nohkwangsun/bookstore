@@ -1,8 +1,8 @@
-package com.onlinejava.project.bookstore.domain.model;
+package com.onlinejava.project.bookstore.domain.entity;
 
 import java.util.Objects;
 
-public class Book extends Model {
+public class Book extends Entity {
     private String title;
     private String writer;
     private String publisher;

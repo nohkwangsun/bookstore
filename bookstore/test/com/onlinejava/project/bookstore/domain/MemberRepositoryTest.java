@@ -1,8 +1,8 @@
 package com.onlinejava.project.bookstore.domain;
 
-import com.onlinejava.project.bookstore.domain.model.Grade;
-import com.onlinejava.project.bookstore.domain.model.Member;
-import com.onlinejava.project.bookstore.domain.service.BookStoreService;
+import com.onlinejava.project.bookstore.domain.entity.Grade;
+import com.onlinejava.project.bookstore.domain.entity.Member;
+import com.onlinejava.project.bookstore.infrastructure.file.FileMemberRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -11,9 +11,9 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class BookStoreServiceTest {
+public class MemberRepositoryTest {
 
-    private BookStoreService service;
+    private FileMemberRepository memberRepository = new FileMemberRepository();
     private List<String> csv;
     private List<String> csvWithHeader;
     private Member kim;
@@ -21,7 +21,6 @@ public class BookStoreServiceTest {
 
     @BeforeEach
     void beforeAll() {
-        service = new BookStoreService();
 
         kim = new Member();
         kim.setUserName("김종국");
@@ -53,17 +52,8 @@ public class BookStoreServiceTest {
     }
 
     @Test
-    void createModelByCSVTestWithoutHeader() {
-        List<Member> members = service.getModelListFromLinesWithoutHeader(csv, Member.class);
-
-        assertEquals(2, members.size());
-        assertEquals(kim, members.stream().filter(m -> m.getUserName().equals(kim.getUserName())).findFirst().get());
-        assertEquals(yoo, members.stream().filter(m -> m.getUserName().equals(yoo.getUserName())).findFirst().get());
-    }
-
-    @Test
-    void createModelByCSVTestWithHeader() {
-        List<Member> members = service.getModelListFromLinesWithHeader(csvWithHeader, Member.class);
+    void createEntityByCSVTestWithFalseParam() {
+        List<Member> members = memberRepository.getEntityListFromLines(csv, Member.class, false);
 
         assertEquals(2, members.size());
         assertEquals(kim, members.get(0));
@@ -71,17 +61,8 @@ public class BookStoreServiceTest {
     }
 
     @Test
-    void createModelByCSVTestWithFalseParam() {
-        List<Member> members = service.getModelListFromLines(csv, Member.class, false);
-
-        assertEquals(2, members.size());
-        assertEquals(kim, members.get(0));
-        assertEquals(yoo, members.get(1));
-    }
-
-    @Test
-    void createModelByCSVTestWithTrueParam() {
-        List<Member> members = service.getModelListFromLines(csvWithHeader, Member.class, true);
+    void createEntityByCSVTestWithTrueParam() {
+        List<Member> members = memberRepository.getEntityListFromLines(csvWithHeader, Member.class, true);
 
         assertEquals(2, members.size());
         assertEquals(kim, members.get(0));
