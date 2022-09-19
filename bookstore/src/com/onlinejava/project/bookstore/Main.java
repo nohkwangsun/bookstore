@@ -1,6 +1,6 @@
 package com.onlinejava.project.bookstore;
 
-import com.onlinejava.project.bookstore.domain.BookStoreApplication;
+import com.onlinejava.project.bookstore.application.domain.BookStoreApplication;
 
 public class Main {
 

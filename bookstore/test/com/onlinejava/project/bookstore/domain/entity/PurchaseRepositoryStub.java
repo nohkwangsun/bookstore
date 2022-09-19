@@ -1,7 +1,7 @@
 package com.onlinejava.project.bookstore.domain.entity;
 
-import com.onlinejava.project.bookstore.domain.entity.Purchase;
-import com.onlinejava.project.bookstore.ports.output.PurchaseRepository;
+import com.onlinejava.project.bookstore.application.domain.entity.Purchase;
+import com.onlinejava.project.bookstore.application.ports.output.PurchaseRepository;
 
 import java.util.List;
 
