@@ -1,8 +1,11 @@
 package com.onlinejava.project.bookstore.adapters.cli;
 
+import com.onlinejava.project.bookstore.application.domain.entity.Purchase;
 import com.onlinejava.project.bookstore.core.cli.CliCommand;
 import com.onlinejava.project.bookstore.application.ports.input.PurchaseUseCase;
 import com.onlinejava.project.bookstore.core.factory.BeanFactory;
+
+import java.util.List;
 
 import static com.onlinejava.project.bookstore.application.domain.BookStoreApplication.scanner;
 
@@ -10,6 +13,8 @@ import static com.onlinejava.project.bookstore.application.domain.BookStoreAppli
 @SuppressWarnings({"unused"})
 public class PurchaseCommands {
     private PurchaseUseCase service;
+
+    private ConsolePrinter<Purchase> printer = new ConsolePrinter<>(Purchase.class);
 
     public PurchaseCommands() {
         service = BeanFactory.getInstance().get(PurchaseUseCase.class);
@@ -21,7 +26,8 @@ public class PurchaseCommands {
 
     @CliCommand(ID = "6", title = "Print purchase list")
     public void printPurchaseList() {
-        service.getPurchaseList().forEach(System.out::println);
+        List<Purchase> purchaseList = service.getPurchaseList();
+        printer.printList(purchaseList);
     }
 
     @CliCommand(ID = "5", title = "Buy a book")
@@ -37,7 +43,8 @@ public class PurchaseCommands {
     public void printUsersPurchaseList() {
         System.out.print("Type user name:");
         String userNameToPrintPurchases = scanner.nextLine().trim();
-        service.printPurchaseListByUser(userNameToPrintPurchases);
+        List<Purchase> purchaseListByUser = service.getPurchaseListByUser(userNameToPrintPurchases);
+        printer.printList(purchaseListByUser);
     }
 
 }

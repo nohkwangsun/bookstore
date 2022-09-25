@@ -3,6 +3,7 @@ package com.onlinejava.project.bookstore.core.util.reflect;
 import com.onlinejava.project.bookstore.core.function.Consumers;
 import com.onlinejava.project.bookstore.core.function.Functions;
 import com.onlinejava.project.bookstore.core.function.Functions.ThrowableFunction;
+import com.onlinejava.project.bookstore.core.util.StringUtils;
 
 import java.io.*;
 import java.lang.reflect.Field;
@@ -13,6 +14,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static com.onlinejava.project.bookstore.core.function.Functions.unchecked;
 
 
 public class ReflectionUtils {
@@ -108,5 +111,18 @@ public class ReflectionUtils {
             field.setAccessible(accessible);
         }
         return value;
+    }
+
+    private static String toGetterName(Field f) {
+        String prefix = f.getType().equals(boolean.class) ? "is" : "get";
+        return prefix + StringUtils.toCapitalize(f.getName());
+    }
+
+    public static Method[] getDeclaredGetters(Class<?> clazz) {
+        Field[] fields = clazz.getDeclaredFields();
+        return Arrays.stream(fields)
+                .map(ReflectionUtils::toGetterName)
+                .map(unchecked(getterName -> clazz.getMethod(getterName)))
+                .toArray(Method[]::new);
     }
 }

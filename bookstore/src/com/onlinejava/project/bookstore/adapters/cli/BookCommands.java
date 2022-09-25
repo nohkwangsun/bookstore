@@ -1,5 +1,6 @@
 package com.onlinejava.project.bookstore.adapters.cli;
 
+import com.onlinejava.project.bookstore.application.domain.entity.Member;
 import com.onlinejava.project.bookstore.core.cli.CliCommand;
 import com.onlinejava.project.bookstore.application.domain.entity.Book;
 import com.onlinejava.project.bookstore.application.ports.input.BookUseCase;
@@ -15,6 +16,8 @@ import static com.onlinejava.project.bookstore.application.domain.BookStoreAppli
 public class BookCommands {
     private BookUseCase service;
 
+    private ConsolePrinter<Book> printer = new ConsolePrinter<>(Book.class);
+
     public BookCommands() {
         service = BeanFactory.getInstance().get(BookUseCase.class);
     }
@@ -25,14 +28,14 @@ public class BookCommands {
 
     @CliCommand(ID = "1", title = "Print book list")
     public void printBookList() {
-        printBookList(service.getBookList());
+        printer.printList(service.getBookList());
     }
     
     @CliCommand(ID = "2", title = "Search a book")
     public void searchBook() {
         System.out.print("Search Keyword:");
         String keyword = scanner.nextLine();
-        printBookList(service.searchBook(keyword));
+        printer.printList(service.searchBook(keyword));
     }
 
     @CliCommand(ID = "3", title = "Add a new book")
@@ -81,27 +84,4 @@ public class BookCommands {
         service.addStock(titleToAddStock, stock);
     }
 
-    public void printBookList(List<Book> bookList) {
-        printTableLine();
-        printHeader();
-        bookList.forEach(this::printTable);
-        printTableLine();
-    }
-
-    private void printHeader() {
-        printTableLine();
-        System.out.printf("| %-10s \t | %-10s \t | %-10s \t | %-10s \t | %-10s \t |\n",
-                "TITLE", "WRITER", "PRICE", "LOCATION", "STOCK");
-    }
-
-    private void printTable(Book book) {
-        printTableLine();
-        System.out.printf("| %-10s \t | %-10s \t | %-10s \t | %-10s \t | %-10s \t |\n",
-                book.getTitle(), book.getWriter(), book.getPrice(), book.getLocation(), book.getStock());
-    }
-
-    private void printTableLine() {
-        IntStream.range(1, 60).forEach(i -> System.out.print("-"));
-        System.out.println();
-    }
 }

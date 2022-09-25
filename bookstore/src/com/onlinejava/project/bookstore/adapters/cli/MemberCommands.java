@@ -1,9 +1,12 @@
 package com.onlinejava.project.bookstore.adapters.cli;
 
+import com.onlinejava.project.bookstore.application.domain.entity.Book;
 import com.onlinejava.project.bookstore.core.cli.CliCommand;
 import com.onlinejava.project.bookstore.application.domain.entity.Member;
 import com.onlinejava.project.bookstore.application.ports.input.MemberUseCase;
 import com.onlinejava.project.bookstore.core.factory.BeanFactory;
+
+import java.util.List;
 
 import static com.onlinejava.project.bookstore.application.domain.BookStoreApplication.scanner;
 
@@ -12,6 +15,7 @@ import static com.onlinejava.project.bookstore.application.domain.BookStoreAppli
 public class MemberCommands {
 
     private MemberUseCase service;
+    private ConsolePrinter<Member> printer = new ConsolePrinter<>(Member.class);
 
     public MemberCommands() {
         service = BeanFactory.getInstance().get(MemberUseCase.class);
@@ -23,7 +27,8 @@ public class MemberCommands {
 
     @CliCommand(ID = "8", title = "Print member list")
     public void printMemberList() {
-        service.getActiveMemberList().forEach(System.out::println);
+        List<Member> activeMemberList = service.getActiveMemberList();
+        printer.printList(activeMemberList);
     }
 
     @CliCommand(ID = "9", title = "Add new member")

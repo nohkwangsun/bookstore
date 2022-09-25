@@ -1,7 +1,7 @@
 package com.onlinejava.project.bookstore.adapters.cli;
 
-import com.onlinejava.project.bookstore.core.cli.CliCommand;
 import com.onlinejava.project.bookstore.application.ports.input.MemberUseCase;
+import com.onlinejava.project.bookstore.core.cli.CliCommand;
 import com.onlinejava.project.bookstore.core.factory.BeanFactory;
 
 import static com.onlinejava.project.bookstore.application.domain.BookStoreApplication.scanner;
