@@ -12,5 +12,5 @@ public interface PurchaseUseCase {
 
     List<Purchase> getPurchaseList();
 
-    void printPurchaseListByUser(String userName);
+    List<Purchase> getPurchaseListByUser(String userName);
 }

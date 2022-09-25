@@ -65,9 +65,9 @@ public class PurchaseService implements PurchaseUseCase {
     }
 
     @Override
-    public void printPurchaseListByUser(String userName) {
-        getPurchaseList().stream()
+    public List<Purchase> getPurchaseListByUser(String userName) {
+        return getPurchaseList().stream()
                 .filter(purchase -> purchase.getCustomer().equals(userName))
-                .forEach(System.out::println);
+                .toList();
     }
 }
