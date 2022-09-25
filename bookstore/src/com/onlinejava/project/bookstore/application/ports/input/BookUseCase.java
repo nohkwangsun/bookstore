@@ -14,6 +14,4 @@ public interface BookUseCase {
     List<Book> searchBook(String keyword);
 
     void addStock(String titleToAddStock, int stock);
-
-    void printBookList(List<Book> bookList);
 }

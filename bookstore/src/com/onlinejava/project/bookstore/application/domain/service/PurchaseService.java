@@ -1,6 +1,5 @@
 package com.onlinejava.project.bookstore.application.domain.service;
 
-import com.onlinejava.project.bookstore.application.domain.BookStoreFactory;
 import com.onlinejava.project.bookstore.application.domain.entity.Book;
 import com.onlinejava.project.bookstore.application.domain.entity.Member;
 import com.onlinejava.project.bookstore.application.domain.entity.Purchase;
@@ -8,21 +7,21 @@ import com.onlinejava.project.bookstore.application.ports.input.PurchaseUseCase;
 import com.onlinejava.project.bookstore.application.ports.output.BookRepository;
 import com.onlinejava.project.bookstore.application.ports.output.MemberRepository;
 import com.onlinejava.project.bookstore.application.ports.output.PurchaseRepository;
+import com.onlinejava.project.bookstore.core.factory.Bean;
+import com.onlinejava.project.bookstore.core.factory.Inject;
 
 import java.util.List;
 
+@Bean
 public class PurchaseService implements PurchaseUseCase {
+    @Inject
     private PurchaseRepository repository;
+    @Inject
     private BookRepository bookRepository;
+    @Inject
     private MemberRepository memberRepository;
 
     public PurchaseService() {
-    }
-
-    public void setDependency() {
-        this.repository = BookStoreFactory.lookup(PurchaseRepository.class);
-        this.bookRepository = BookStoreFactory.lookup(BookRepository.class);
-        this.memberRepository = BookStoreFactory.lookup(MemberRepository.class);
     }
 
     public PurchaseService(PurchaseRepository repository, BookRepository bookRepository, MemberRepository memberRepository) {

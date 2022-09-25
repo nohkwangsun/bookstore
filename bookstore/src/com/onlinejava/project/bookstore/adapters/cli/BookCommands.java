@@ -2,8 +2,11 @@ package com.onlinejava.project.bookstore.adapters.cli;
 
 import com.onlinejava.project.bookstore.core.cli.CliCommand;
 import com.onlinejava.project.bookstore.application.domain.entity.Book;
-import com.onlinejava.project.bookstore.application.domain.BookStoreFactory;
 import com.onlinejava.project.bookstore.application.ports.input.BookUseCase;
+import com.onlinejava.project.bookstore.core.factory.BeanFactory;
+
+import java.util.List;
+import java.util.stream.IntStream;
 
 import static com.onlinejava.project.bookstore.application.domain.BookStoreApplication.scanner;
 
@@ -13,7 +16,7 @@ public class BookCommands {
     private BookUseCase service;
 
     public BookCommands() {
-        this.service = BookStoreFactory.lookup(BookUseCase.class);
+        service = BeanFactory.getInstance().get(BookUseCase.class);
     }
 
     public BookCommands(BookUseCase service) {
@@ -22,14 +25,14 @@ public class BookCommands {
 
     @CliCommand(ID = "1", title = "Print book list")
     public void printBookList() {
-        service.printBookList(service.getBookList());
+        printBookList(service.getBookList());
     }
     
     @CliCommand(ID = "2", title = "Search a book")
     public void searchBook() {
         System.out.print("Search Keyword:");
         String keyword = scanner.nextLine();
-        service.printBookList(service.searchBook(keyword));
+        printBookList(service.searchBook(keyword));
     }
 
     @CliCommand(ID = "3", title = "Add a new book")
@@ -76,5 +79,29 @@ public class BookCommands {
         System.out.print("Type stock:");
         int stock = Integer.parseInt(scanner.nextLine().trim());
         service.addStock(titleToAddStock, stock);
+    }
+
+    public void printBookList(List<Book> bookList) {
+        printTableLine();
+        printHeader();
+        bookList.forEach(this::printTable);
+        printTableLine();
+    }
+
+    private void printHeader() {
+        printTableLine();
+        System.out.printf("| %-10s \t | %-10s \t | %-10s \t | %-10s \t | %-10s \t |\n",
+                "TITLE", "WRITER", "PRICE", "LOCATION", "STOCK");
+    }
+
+    private void printTable(Book book) {
+        printTableLine();
+        System.out.printf("| %-10s \t | %-10s \t | %-10s \t | %-10s \t | %-10s \t |\n",
+                book.getTitle(), book.getWriter(), book.getPrice(), book.getLocation(), book.getStock());
+    }
+
+    private void printTableLine() {
+        IntStream.range(1, 60).forEach(i -> System.out.print("-"));
+        System.out.println();
     }
 }

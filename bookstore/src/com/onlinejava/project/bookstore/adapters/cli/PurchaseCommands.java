@@ -1,8 +1,8 @@
 package com.onlinejava.project.bookstore.adapters.cli;
 
 import com.onlinejava.project.bookstore.core.cli.CliCommand;
-import com.onlinejava.project.bookstore.application.domain.BookStoreFactory;
 import com.onlinejava.project.bookstore.application.ports.input.PurchaseUseCase;
+import com.onlinejava.project.bookstore.core.factory.BeanFactory;
 
 import static com.onlinejava.project.bookstore.application.domain.BookStoreApplication.scanner;
 
@@ -12,7 +12,7 @@ public class PurchaseCommands {
     private PurchaseUseCase service;
 
     public PurchaseCommands() {
-        this.service = BookStoreFactory.lookup(PurchaseUseCase.class);
+        service = BeanFactory.getInstance().get(PurchaseUseCase.class);
     }
 
     public PurchaseCommands(PurchaseUseCase service) {
