@@ -1,5 +1,7 @@
 package com.onlinejava.project.bookstore.core.cli;
 
+import com.onlinejava.project.bookstore.core.factory.Bean;
+
 import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

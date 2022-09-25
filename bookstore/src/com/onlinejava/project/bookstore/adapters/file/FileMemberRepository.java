@@ -3,10 +3,12 @@ package com.onlinejava.project.bookstore.adapters.file;
 import com.onlinejava.project.bookstore.Main;
 import com.onlinejava.project.bookstore.application.domain.entity.Member;
 import com.onlinejava.project.bookstore.application.ports.output.MemberRepository;
+import com.onlinejava.project.bookstore.core.factory.Bean;
 
 import java.util.List;
 import java.util.Optional;
 
+@Bean
 public class FileMemberRepository extends FileRepository<Member> implements MemberRepository {
     @Override
     public List<Member> findAll() {

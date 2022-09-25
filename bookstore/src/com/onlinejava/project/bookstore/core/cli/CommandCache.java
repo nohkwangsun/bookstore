@@ -1,6 +1,7 @@
 package com.onlinejava.project.bookstore.core.cli;
 
 import com.onlinejava.project.bookstore.Main;
+import com.onlinejava.project.bookstore.core.factory.BeanFactory;
 import com.onlinejava.project.bookstore.core.function.Functions;
 import com.onlinejava.project.bookstore.core.util.reflect.ReflectionUtils;
 
@@ -29,12 +30,11 @@ public class CommandCache {
         return Optional.ofNullable(CommandCache.commands.get(command));
     }
 
-
     public static void loadCommands() {
         List<Class> classesInPackage = getClassesFromBasePackage(Main.BASE_PACKAGE);
 
-        Stream<CliCommandInterface> cliCommandInterfaces = getCliCommandInterfaces(classesInPackage);
-        Stream<CliCommandInterface> annotatedCommands = getAnnotatedCommands(classesInPackage);
+        Stream<CliCommandInterface> cliCommandInterfaces = newInstancesOfCliCommandInterfaces(classesInPackage);
+        Stream<CliCommandInterface> annotatedCommands = newInstancesOfAnnotatedCommands(classesInPackage);
 
         Map<String, CliCommandInterface> commands = Stream.concat(cliCommandInterfaces, annotatedCommands)
                     .map(CommandCache::commandToProxy)
@@ -43,7 +43,7 @@ public class CommandCache {
         CommandCache.addCommands(commands);
     }
 
-    private static Stream<CliCommandInterface> getAnnotatedCommands(List<Class> classesInPackage) {
+    private static Stream<CliCommandInterface> newInstancesOfAnnotatedCommands(List<Class> classesInPackage) {
         Stream<CliCommandInterface> annotatedCommandStream = classesInPackage.stream()
                     .filter(clazz -> clazz.isAnnotationPresent(CliCommand.class))
                     .flatMap(clazz -> Arrays.stream(clazz.getDeclaredMethods()))
@@ -53,7 +53,7 @@ public class CommandCache {
         return annotatedCommandStream;
     }
 
-    private static Stream<CliCommandInterface> getCliCommandInterfaces(List<Class> classesInPackage) {
+    private static Stream<CliCommandInterface> newInstancesOfCliCommandInterfaces(List<Class> classesInPackage) {
         Stream<CliCommandInterface> cliCommandInterfaceStream = classesInPackage.stream()
                 .filter(clazz -> CliCommandInterface.class.isAssignableFrom(clazz))
                 .filter(clazz -> !clazz.isInterface())
