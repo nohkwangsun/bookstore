@@ -47,9 +47,9 @@ public class BookService implements BookUseCase {
     }
 
     @Override
-    public void addStock(String titleToAddStock, int stock) {
+    public void addStock(String title, int stock) {
         getBookList().stream()
-                .filter(book -> book.getTitle().equals(titleToAddStock))
+                .filter(book -> book.getTitle().equals(title))
                 .forEach(book -> book.addStock(stock));
     }
 }

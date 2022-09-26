@@ -1,4 +1,4 @@
-package com.onlinejava.project.bookstore.domain.entity;
+package com.onlinejava.project.bookstore.application.domain.service;
 
 import com.onlinejava.project.bookstore.application.domain.entity.Member;
 import com.onlinejava.project.bookstore.application.ports.output.MemberRepository;
@@ -6,7 +6,7 @@ import com.onlinejava.project.bookstore.application.ports.output.MemberRepositor
 import java.util.List;
 import java.util.Optional;
 
-public class MemberRepositoryStub implements MemberRepository {
+public class DummyMemberRepository implements MemberRepository {
     @Override
     public List<Member> findAll() {
         return null;

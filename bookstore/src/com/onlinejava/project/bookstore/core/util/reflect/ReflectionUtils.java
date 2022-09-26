@@ -13,6 +13,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static com.onlinejava.project.bookstore.core.function.Functions.unchecked;
@@ -122,7 +123,17 @@ public class ReflectionUtils {
         Field[] fields = clazz.getDeclaredFields();
         return Arrays.stream(fields)
                 .map(ReflectionUtils::toGetterName)
+                .filter(getterName -> hasMethod(clazz, getterName))
                 .map(unchecked(getterName -> clazz.getMethod(getterName)))
                 .toArray(Method[]::new);
+    }
+
+    private static boolean hasMethod(Class<?> clazz, String methodName) {
+        try {
+            clazz.getDeclaredMethod(methodName);
+        } catch (NoSuchMethodException e) {
+            return false;
+        }
+        return true;
     }
 }
