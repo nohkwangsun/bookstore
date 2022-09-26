@@ -1,4 +1,4 @@
-package com.onlinejava.project.bookstore.core;
+package com.onlinejava.project.bookstore.core.util;
 
 import com.onlinejava.project.bookstore.core.util.StringUtils;
 import org.junit.jupiter.api.Test;

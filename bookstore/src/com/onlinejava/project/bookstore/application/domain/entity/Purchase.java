@@ -9,6 +9,17 @@ public class Purchase extends Entity {
     private int totalPrice;
     private int point;
 
+    public Purchase() {
+    }
+
+    public Purchase(String title, String customer, int numberOfPurchase, int totalPrice, int point) {
+        this.title = title;
+        this.customer = customer;
+        this.numberOfPurchase = numberOfPurchase;
+        this.totalPrice = totalPrice;
+        this.point = point;
+    }
+
     public int getTotalPrice() {
         return totalPrice;
     }

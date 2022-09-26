@@ -11,6 +11,19 @@ public class Book extends Entity {
     private String location;
     private int stock;
 
+    public Book() {
+    }
+
+    public Book(String title, String writer, String publisher, int price, String releaseDate, String location, int stock) {
+        this.title = title;
+        this.writer = writer;
+        this.publisher = publisher;
+        this.price = price;
+        this.releaseDate = releaseDate;
+        this.location = location;
+        this.stock = stock;
+    }
+
     public int getStock() {
         return stock;
     }

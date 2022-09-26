@@ -10,6 +10,18 @@ public class Member extends Entity {
     private Grade grade;
     private boolean active;
 
+    public Member() {
+    }
+
+    public Member(String userName, String email, String address, int totalPoint, Grade grade, boolean active) {
+        this.userName = userName;
+        this.email = email;
+        this.address = address;
+        this.totalPoint = totalPoint;
+        this.grade = grade;
+        this.active = active;
+    }
+
     @Override
     public String toString() {
         return "Member{" +

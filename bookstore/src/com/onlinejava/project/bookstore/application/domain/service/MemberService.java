@@ -6,6 +6,7 @@ import com.onlinejava.project.bookstore.application.domain.entity.Purchase;
 import com.onlinejava.project.bookstore.application.ports.input.MemberUseCase;
 import com.onlinejava.project.bookstore.application.ports.input.PurchaseUseCase;
 import com.onlinejava.project.bookstore.application.ports.output.MemberRepository;
+import com.onlinejava.project.bookstore.application.ports.output.PurchaseRepository;
 import com.onlinejava.project.bookstore.core.factory.Bean;
 import com.onlinejava.project.bookstore.core.factory.Inject;
 
@@ -22,14 +23,14 @@ public class MemberService implements MemberUseCase {
     private MemberRepository repository;
 
     @Inject
-    private PurchaseUseCase purchaseService;
+    private PurchaseRepository purchaseRepository;
 
     public MemberService() {
     }
 
-    public MemberService(MemberRepository repository, PurchaseUseCase purchaseService) {
+    public MemberService(MemberRepository repository, PurchaseRepository purchaseRepository) {
         this.repository = repository;
-        this.purchaseService = purchaseService;
+        this.purchaseRepository = purchaseRepository;
     }
 
     @Override
@@ -68,7 +69,7 @@ public class MemberService implements MemberUseCase {
         member.setEmail(email);
         member.setAddress(address);
         member.setTotalPoint(0);
-        member.setGrade(Grade.BRONZE);
+        member.setGrade(Grade.GENERAL);
         member.setActive(true);
         repository.add(member);
     }
@@ -85,7 +86,8 @@ public class MemberService implements MemberUseCase {
 
     @Override
     public void updateMemberGrades() {
-        purchaseService.getPurchaseList().stream()
+        getMemberList().forEach(m -> m.setGrade(Grade.GENERAL));
+        purchaseRepository.findAll().stream()
                 .collect(groupingBy(Purchase::getCustomer, summarizingInt(Purchase::getTotalPrice)))
                 .forEach((user, stat) -> {
                     Grade newGrade = Grade.getGradeByTotalPrice(stat.getSum());

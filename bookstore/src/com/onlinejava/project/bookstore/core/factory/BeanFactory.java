@@ -1,7 +1,6 @@
 package com.onlinejava.project.bookstore.core.factory;
 
 
-import com.onlinejava.project.bookstore.core.cli.CliCommandInterface;
 import com.onlinejava.project.bookstore.core.util.reflect.ReflectionUtils;
 
 import java.io.File;
@@ -9,6 +8,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -27,7 +27,6 @@ public final class BeanFactory {
                 .forEach(getInstance()::injectDependency);
     }
 
-    public static final String WORKING_DIRECTORY = "bookstore/out/production/bookstore/";
     private static BeanFactory beanFactory;
 
     private BeanFactory() {
@@ -146,8 +145,13 @@ public final class BeanFactory {
 
     private File getPackageDirectoryAsFile(String basePackage) {
         String packagePath = basePackage.replaceAll("[.]", "/");
-        URI uri = Paths.get(WORKING_DIRECTORY + packagePath).toUri();
-        return new File(uri);
+
+        try {
+            URI uri = ClassLoader.getSystemClassLoader().getResource(packagePath).toURI();
+            return new File(uri);
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private boolean isInjectAnnotated(Field type) {
