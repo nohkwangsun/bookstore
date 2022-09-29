@@ -1,5 +1,6 @@
 package com.onlinejava.project.bookstore.application.domain.service;
 
+import com.onlinejava.project.bookstore.adapters.file.FileMemberRepository;
 import com.onlinejava.project.bookstore.application.domain.entity.Grade;
 import com.onlinejava.project.bookstore.application.domain.entity.Member;
 import com.onlinejava.project.bookstore.application.domain.entity.Purchase;
@@ -30,8 +31,9 @@ class MemberServiceTest {
         }
 
         @Override
-        public void add(Member member) {
+        public boolean add(Member member) {
             list.add(member);
+            return false;
         }
 
         @Override
@@ -78,8 +80,21 @@ class MemberServiceTest {
     }
 
     @Test
+    void modifyMemberWithFileMemberRepository() {
+        MemberService memberService = new MemberService(new FileMemberRepository() {{
+            this.list = repository.list;
+        }}, purchaseRepository);
+
+        Member member = new Member("haha", "haha@running.com", "n/a", 100, Grade.SILVER, true);
+        memberService.modifyMember("haha", member);
+
+        assertEquals("n/a", repository.list.get(0).getAddress());
+        assertEquals(member, repository.list.get(0));
+    }
+
+    @Test
     void getMemberByUserName() {
-        Member member = service.getMemberByUserName("gary").get();
+        Member member = service.getMemberByUserName("gary");
         assertEquals("gary", member.getUserName());
     }
 

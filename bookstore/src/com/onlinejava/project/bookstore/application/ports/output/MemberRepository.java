@@ -12,7 +12,7 @@ public interface MemberRepository {
 
     List<Member> findActiveMembers();
 
-    void add(Member member);
+    boolean add(Member member);
 
     void save();
 }

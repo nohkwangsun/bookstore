@@ -1,9 +1,14 @@
 package com.onlinejava.project.bookstore.application.domain;
 
 import com.onlinejava.project.bookstore.adapters.file.FileDataInitializer;
+import com.onlinejava.project.bookstore.application.domain.exception.ExpectedException;
+import com.onlinejava.project.bookstore.application.domain.exception.UnexpectedException;
+import com.onlinejava.project.bookstore.application.domain.exception.UnknownCommandException;
 import com.onlinejava.project.bookstore.core.cli.*;
 
 import java.util.*;
+
+import static com.onlinejava.project.bookstore.core.util.ExceptionUtils.getRootCause;
 
 public class BookStoreApplication {
 
@@ -60,12 +65,24 @@ public class BookStoreApplication {
     }
 
     public void runCommand() {
-        String cmdNum = scanner.nextLine().trim();
-        CommandCache.getCommand(cmdNum).ifPresentOrElse(
-                CliCommandInterface::run,
-                () -> System.out.println("Error: Unknown command : " + cmdNum)
-        );
+        try {
+            String cmdNum = scanner.nextLine().trim();
+            runCommand(cmdNum);
+        } catch (ExpectedException e) {
+            System.out.println("\nInfo : " + e.getMessage());
+        } catch (UnexpectedException e) {
+            System.out.println("\nError : " + e.getMessage());
+        } catch (Exception e) {
+            System.out.println("\nError : " + getRootCause(e).getMessage());
+        }
+        System.out.println("Press enter for the menu...");
+        scanner.nextLine();
+    }
 
+    public void runCommand(String cmdNum) {
+        CliCommandInterface command = CommandCache.getCommand(cmdNum)
+                .orElseThrow(() -> new UnknownCommandException(cmdNum));
+        command.run();
     }
 
 }

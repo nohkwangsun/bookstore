@@ -17,7 +17,13 @@ public class DummyPurchaseRepository implements PurchaseRepository {
     }
 
     @Override
-    public void add(Purchase purchase) {
+    public boolean add(Purchase purchase) {
 
+        return false;
+    }
+
+    @Override
+    public List<Purchase> findByCustomer(String customerName) {
+        return null;
     }
 }

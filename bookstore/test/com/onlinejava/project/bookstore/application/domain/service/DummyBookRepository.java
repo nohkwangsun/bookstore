@@ -21,4 +21,14 @@ public class DummyBookRepository implements BookRepository {
     public Optional<Book> findByTitle(String title) {
         return Optional.empty();
     }
+
+    @Override
+    public boolean remove(Book book) {
+        return false;
+    }
+
+    @Override
+    public boolean add(Book book) {
+        return false;
+    }
 }

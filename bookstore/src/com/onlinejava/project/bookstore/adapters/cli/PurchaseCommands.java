@@ -7,6 +7,7 @@ import com.onlinejava.project.bookstore.core.factory.BeanFactory;
 
 import java.util.List;
 
+import static com.onlinejava.project.bookstore.adapters.cli.ConsoleUtils.prompt;
 import static com.onlinejava.project.bookstore.application.domain.BookStoreApplication.scanner;
 
 @CliCommand
@@ -26,25 +27,20 @@ public class PurchaseCommands {
 
     @CliCommand(ID = "6", title = "Print purchase list")
     public void printPurchaseList() {
-        List<Purchase> purchaseList = service.getPurchaseList();
-        printer.printList(purchaseList);
+        printer.printList(service.getPurchaseList());
     }
 
     @CliCommand(ID = "5", title = "Buy a book")
     public void buyBookCommand() {
-        System.out.print("Type title:");
-        String titleToBuy = scanner.nextLine().trim();
-        System.out.print("Type customer:");
-        String customer = scanner.nextLine().trim();
-        service.buyBook(titleToBuy, customer);
+        String title = prompt("title");
+        String customer = prompt("customer");
+        service.buyBook(title, customer);
     }
 
     @CliCommand(ID = "12", title = "Print a user's purchases")
     public void printUsersPurchaseList() {
-        System.out.print("Type user name:");
-        String userNameToPrintPurchases = scanner.nextLine().trim();
-        List<Purchase> purchaseListByUser = service.getPurchaseListByUser(userNameToPrintPurchases);
-        printer.printList(purchaseListByUser);
+        String userName = prompt("user name");
+        printer.printList(service.getPurchaseListByUser(userName));
     }
 
 }

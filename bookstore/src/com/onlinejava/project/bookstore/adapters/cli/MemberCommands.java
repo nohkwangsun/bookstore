@@ -8,6 +8,8 @@ import com.onlinejava.project.bookstore.core.factory.BeanFactory;
 
 import java.util.List;
 
+import static com.onlinejava.project.bookstore.adapters.cli.ConsoleUtils.prompt;
+import static com.onlinejava.project.bookstore.adapters.cli.ConsoleUtils.promptDefaultValue;
 import static com.onlinejava.project.bookstore.application.domain.BookStoreApplication.scanner;
 
 @CliCommand
@@ -27,46 +29,38 @@ public class MemberCommands {
 
     @CliCommand(ID = "8", title = "Print member list")
     public void printMemberList() {
-        List<Member> activeMemberList = service.getActiveMemberList();
-        printer.printList(activeMemberList);
+        printer.printList(service.getActiveMemberList());
     }
 
     @CliCommand(ID = "9", title = "Add new member")
     public void addMember() {
-        System.out.print("Type user name:");
-        String userName = scanner.nextLine().trim();
-        System.out.print("Type email:");
-        String email = scanner.nextLine().trim();
-        System.out.print("Type address:");
-        String address = scanner.nextLine().trim();
+        String userName = prompt("user name");
+        String email = prompt("email");
+        String address = prompt("address");
         service.addMember(userName, email, address);
     }
 
     @CliCommand(ID = "10", title = "Withdraw a member")
     public void withdrawMember() {
-        System.out.print("Type user name:");
-        String userNameToWithdraw = scanner.nextLine().trim();
-        service.withdrawMember(userNameToWithdraw);
+        String userName = prompt("user name");
+        service.withdrawMember(userName);
     }
 
     @CliCommand(ID = "11", title = "Modify a member")
     public void ModifyMember() {
-        System.out.print("Type user name:");
-        String userNameToModify = scanner.nextLine().trim();
-        service.getMemberByUserName(userNameToModify).ifPresent(member -> {
-            System.out.printf("Type new user name [default:%s] :", member.getUserName());
-            String newUserName = scanner.nextLine().trim();
-            System.out.printf("Type email [default:%s] :", member.getEmail());
-            String newEmail = scanner.nextLine().trim();
-            System.out.printf("Type address [default:%s] :", member.getAddress());
-            String newAddress = scanner.nextLine().trim();
-            Member newMember = new Member();
-            newMember.setUserName(newUserName);
-            newMember.setEmail(newEmail);
-            newMember.setAddress(newAddress);
-            newMember.setTotalPoint(member.getTotalPoint());
-            newMember.setActive(member.isActive());
-            service.modifyMember(userNameToModify, newMember);
-        });
+        String userName = prompt("user name");
+        Member member = service.getMemberByUserName(userName);
+
+        String newUserName = promptDefaultValue("user name", member.getUserName());
+        String newEmail = promptDefaultValue("email", member.getEmail());
+        String newAddress = promptDefaultValue("address", member.getAddress());
+
+        Member newMember = new Member();
+        newMember.setUserName(newUserName);
+        newMember.setEmail(newEmail);
+        newMember.setAddress(newAddress);
+        newMember.setTotalPoint(member.getTotalPoint());
+        newMember.setActive(member.isActive());
+        service.modifyMember(userName, newMember);
     }
 }

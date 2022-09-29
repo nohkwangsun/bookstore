@@ -3,12 +3,11 @@ package com.onlinejava.project.bookstore.application.ports.input;
 import com.onlinejava.project.bookstore.application.domain.entity.Member;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface MemberUseCase {
     void modifyMember(String userNameToModify, Member member);
 
-    Optional<Member> getMemberByUserName(String userName);
+    Member getMemberByUserName(String userName);
 
     void withdrawMember(String userName);
 

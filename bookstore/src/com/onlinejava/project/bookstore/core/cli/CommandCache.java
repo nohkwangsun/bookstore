@@ -1,6 +1,7 @@
 package com.onlinejava.project.bookstore.core.cli;
 
 import com.onlinejava.project.bookstore.Main;
+import com.onlinejava.project.bookstore.application.domain.exception.BookStoreException;
 import com.onlinejava.project.bookstore.core.factory.BeanFactory;
 import com.onlinejava.project.bookstore.core.function.Functions;
 import com.onlinejava.project.bookstore.core.util.reflect.ReflectionUtils;
@@ -137,11 +138,7 @@ public class CommandCache {
 
             @Override
             public void run() {
-                try {
-                    method.invoke(instance);
-                } catch (IllegalAccessException | InvocationTargetException e) {
-                    throw new RuntimeException(e);
-                }
+                ReflectionUtils.invoke(method, instance);
             }
         };
     }

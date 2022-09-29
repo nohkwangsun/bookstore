@@ -8,8 +8,11 @@ import com.onlinejava.project.bookstore.core.util.reflect.ReflectionUtils;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+
+import static com.onlinejava.project.bookstore.application.domain.BookStoreApplication.scanner;
 
 public class ConsolePrinter<T extends Entity> {
     public static final int COLUMN_SIZE = 18;

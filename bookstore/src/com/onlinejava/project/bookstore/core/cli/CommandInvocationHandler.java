@@ -1,5 +1,7 @@
 package com.onlinejava.project.bookstore.core.cli;
 
+import com.onlinejava.project.bookstore.core.util.reflect.ReflectionUtils;
+
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
@@ -13,15 +15,15 @@ public class CommandInvocationHandler implements InvocationHandler {
     }
 
     @Override
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+    public Object invoke(Object proxy, Method method, Object[] args) {
         boolean target = method.getName().equals("run") && method.getParameterCount() == 0;
         if (!target) {
-            return method.invoke(cliCommand, args);
+            return ReflectionUtils.invoke(method, cliCommand, args);
         }
 
-        Object result = method.invoke(cliCommand);
-        System.out.println("Press enter for the menu...");
-        scanner.nextLine();
+        Object result = ReflectionUtils.invoke(method, cliCommand, args);
+//        System.out.println("Press enter for the menu...");
+//        scanner.nextLine();
 
         return result;
     }

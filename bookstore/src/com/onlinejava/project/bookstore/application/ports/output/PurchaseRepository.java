@@ -8,5 +8,7 @@ public interface PurchaseRepository {
     List<Purchase> findAll();
     void save();
 
-    void add(Purchase purchase);
+    boolean add(Purchase purchase);
+
+    List<Purchase> findByCustomer(String customerName);
 }

@@ -3,16 +3,18 @@ package com.onlinejava.project.bookstore.application.domain.service;
 import com.onlinejava.project.bookstore.application.domain.entity.Grade;
 import com.onlinejava.project.bookstore.application.domain.entity.Member;
 import com.onlinejava.project.bookstore.application.domain.entity.Purchase;
+import com.onlinejava.project.bookstore.application.domain.exception.DuplicateItemException;
+import com.onlinejava.project.bookstore.application.domain.exception.NoSuchItemException;
 import com.onlinejava.project.bookstore.application.ports.input.MemberUseCase;
-import com.onlinejava.project.bookstore.application.ports.input.PurchaseUseCase;
 import com.onlinejava.project.bookstore.application.ports.output.MemberRepository;
 import com.onlinejava.project.bookstore.application.ports.output.PurchaseRepository;
 import com.onlinejava.project.bookstore.core.factory.Bean;
 import com.onlinejava.project.bookstore.core.factory.Inject;
+import com.onlinejava.project.bookstore.core.util.validator.Validators;
 
 import java.util.List;
-import java.util.Optional;
 
+import static com.onlinejava.project.bookstore.application.domain.exception.TooManyItemsException.Term.MemberName;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.summarizingInt;
 
@@ -35,53 +37,48 @@ public class MemberService implements MemberUseCase {
 
     @Override
     public void modifyMember(String userName, Member member) {
-        repository.findByUserName(userName)
-                .ifPresent(exMember -> {
-                    if (!member.getUserName().isBlank()) {
-                        exMember.setUserName(member.getUserName());
-                    }
+        Member exMember = repository.findByUserName(userName)
+                .orElseThrow(() -> new NoSuchItemException(MemberName, userName));
 
-                    if (!member.getEmail().isBlank()) {
-                        exMember.setEmail(member.getEmail());
-                    }
-
-                    if (!member.getAddress().isBlank()) {
-                        exMember.setAddress(member.getAddress());
-                    }
-                });
+        exMember.setUserName(member.getUserName());
+        exMember.setEmail(member.getEmail());
+        exMember.setAddress(member.getAddress());
     }
 
+
     @Override
-    public Optional<Member> getMemberByUserName(String userName) {
-        return repository.findByUserName(userName);
+    public Member getMemberByUserName(String userName) {
+        return repository.findByUserName(userName)
+                .orElseThrow(() -> new NoSuchItemException(MemberName, userName));
     }
 
     @Override
     public void withdrawMember(String userName) {
-        repository.findByUserName(userName)
-                .ifPresent(member -> member.setActive(false));
+        Member member = repository.findByUserName(userName)
+                .orElseThrow(() -> new NoSuchItemException(MemberName, userName));
+        member.setActive(false);
     }
 
     @Override
     public void addMember(String userName, String email, String address) {
-        Member member = new Member();
-        member.setUserName(userName);
-        member.setEmail(email);
-        member.setAddress(address);
-        member.setTotalPoint(0);
-        member.setGrade(Grade.GENERAL);
-        member.setActive(true);
+        repository.findByUserName(userName)
+                .ifPresent(DuplicateItemException.consumerOf(MemberName, userName));
+        Member member = new Member(userName, email, address, 0, Grade.GENERAL, true);
         repository.add(member);
     }
 
     @Override
     public List<Member> getMemberList() {
-        return repository.findAll();
+        List<Member> list = repository.findAll();
+        Validators.throwIfEmpty(list, Member.class);
+        return list;
     }
 
     @Override
     public List<Member> getActiveMemberList() {
-        return repository.findActiveMembers();
+        List<Member> list = repository.findActiveMembers();
+        Validators.throwIfEmpty(list, Member.class);
+        return list;
     }
 
     @Override
@@ -91,8 +88,7 @@ public class MemberService implements MemberUseCase {
                 .collect(groupingBy(Purchase::getCustomer, summarizingInt(Purchase::getTotalPrice)))
                 .forEach((user, stat) -> {
                     Grade newGrade = Grade.getGradeByTotalPrice(stat.getSum());
-                    getMemberByUserName(user).ifPresent(member -> member.setGrade(newGrade));
+                    repository.findByUserName(user).ifPresent(m -> m.setGrade(newGrade));
                 });
-
     }
 }

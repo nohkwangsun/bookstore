@@ -4,6 +4,7 @@ import com.onlinejava.project.bookstore.application.domain.entity.Book;
 import com.onlinejava.project.bookstore.application.domain.entity.Grade;
 import com.onlinejava.project.bookstore.application.domain.entity.Member;
 import com.onlinejava.project.bookstore.application.domain.entity.Purchase;
+import com.onlinejava.project.bookstore.core.util.reflect.ReflectionUtils;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -30,8 +31,14 @@ class PurchaseServiceTest {
         }
 
         @Override
-        public void add(Purchase purchase) {
+        public boolean add(Purchase purchase) {
             list.add(purchase);
+            return false;
+        }
+
+        @Override
+        public List<Purchase> findByCustomer(String customerName) {
+            return this.list.stream().filter(p -> p.getCustomer().equals(customerName)).toList();
         }
     }
     private class BookRepositoryStub extends DummyBookRepository {
@@ -85,7 +92,7 @@ class PurchaseServiceTest {
     @Test
     void getPoint() {
         Book book = new Book("refactoring", "martin", "addison", 50000, "1/1/2000", "b1", 1);
-        int point = service.getPoint(book, "you jaesuk");
+        int point = ReflectionUtils.invokeMethod(service, "getPoint", Integer.class, book, "you jaesuk");
         assertEquals(500, point);
     }
 

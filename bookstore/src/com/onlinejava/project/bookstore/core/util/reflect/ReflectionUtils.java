@@ -1,5 +1,6 @@
 package com.onlinejava.project.bookstore.core.util.reflect;
 
+import com.onlinejava.project.bookstore.application.domain.exception.BookStoreException;
 import com.onlinejava.project.bookstore.core.function.Consumers;
 import com.onlinejava.project.bookstore.core.function.Functions;
 import com.onlinejava.project.bookstore.core.function.Functions.ThrowableFunction;
@@ -13,7 +14,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static com.onlinejava.project.bookstore.core.function.Functions.unchecked;
@@ -135,5 +135,33 @@ public class ReflectionUtils {
             return false;
         }
         return true;
+    }
+
+    public static <T> T invokeMethod(Object object, String methodName, Class<T> returnType, Object ... args) {
+        try {
+            Method method = object.getClass().getDeclaredMethod(methodName, getClasses(args));
+            boolean accessible = method.canAccess(object);
+            method.setAccessible(true);
+            T result = (T) method.invoke(object, args);
+            method.setAccessible(accessible);
+            return result;
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static Class<?>[] getClasses(Object[] objects) {
+        return Arrays.stream(objects).map(Object::getClass).toArray(Class<?>[]::new);
+    }
+
+    public static Object invoke(Method method, Object instance, Object ... args) {
+        try {
+            return method.invoke(instance, args );
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            if (e.getCause() instanceof BookStoreException) {
+                throw (BookStoreException) e.getCause();
+            }
+            throw new RuntimeException(e);
+        }
     }
 }
