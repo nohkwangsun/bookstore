@@ -11,7 +11,7 @@ import java.util.List;
 public class FilePurchaseRepository extends FileRepository<Purchase> implements PurchaseRepository {
     @Override
     public List<Purchase> findAll() {
-        return this.list;
+        return this.list == null ? List.of() : this.list;
     }
 
     @Override
@@ -20,8 +20,15 @@ public class FilePurchaseRepository extends FileRepository<Purchase> implements 
     }
 
     @Override
-    public void add(Purchase purchase) {
-        this.list.add(purchase);
+    public boolean add(Purchase purchase) {
+        return this.list.add(purchase);
+    }
+
+    @Override
+    public List<Purchase> findByCustomer(String customerName) {
+        return this.list.stream()
+                .filter(p -> p.getCustomer().equals(customerName))
+                .toList();
     }
 
     @Override

@@ -3,14 +3,20 @@ package com.onlinejava.project.bookstore.application.domain.service;
 import com.onlinejava.project.bookstore.application.domain.entity.Book;
 import com.onlinejava.project.bookstore.application.domain.entity.Member;
 import com.onlinejava.project.bookstore.application.domain.entity.Purchase;
+import com.onlinejava.project.bookstore.application.domain.exception.NoSuchItemException;
+import com.onlinejava.project.bookstore.application.domain.exception.NotEnoughBooksInStockException;
 import com.onlinejava.project.bookstore.application.ports.input.PurchaseUseCase;
 import com.onlinejava.project.bookstore.application.ports.output.BookRepository;
 import com.onlinejava.project.bookstore.application.ports.output.MemberRepository;
 import com.onlinejava.project.bookstore.application.ports.output.PurchaseRepository;
 import com.onlinejava.project.bookstore.core.factory.Bean;
 import com.onlinejava.project.bookstore.core.factory.Inject;
+import com.onlinejava.project.bookstore.core.util.validator.Validators;
 
 import java.util.List;
+
+import static com.onlinejava.project.bookstore.application.domain.exception.TooManyItemsException.Term.BookTitle;
+import static com.onlinejava.project.bookstore.application.domain.exception.TooManyItemsException.Term.MemberName;
 
 @Bean
 public class PurchaseService implements PurchaseUseCase {
@@ -32,27 +38,45 @@ public class PurchaseService implements PurchaseUseCase {
 
     @Override
     public void buyBook(String title, String customer) {
-        bookRepository.findByTitle(title).stream()
-                .filter(book -> book.getStock() > 0)
-                .forEach(book -> {
-                    book.setStock(book.getStock() - 1);
-                    Purchase purchase = new Purchase();
-                    purchase.setTitle(title);
-                    purchase.setCustomer(customer);
-                    purchase.setNumberOfPurchase(1);
-                    purchase.setTotalPrice(book.getPrice());
-                    purchase.setPoint(getPoint(book, customer));
-                    repository.add(purchase);
-                    memberRepository.findByUserName(customer)
-                            .ifPresent(member -> member.addPoint(getPoint(book, customer)));
-                });
+        Book book = bookRepository.findByTitle(title)
+                .orElseThrow(NoSuchItemException.supplierOf(BookTitle, title));
+        throwIfNotEnoughStock(title, book);
+        throwIfNoSuchMember(customer);
+        updateStockWithMinusOne(book);
+
+        int point = getPoint(book, customer);
+        addNewPurchase(title, customer, book, point);
+        updateUserPoint(customer, point);
     }
 
-    @Override
-    public int getPoint(Book book, String customer) {
+    private Member throwIfNoSuchMember(String customer) {
+        return memberRepository.findByUserName(customer).orElseThrow(NoSuchItemException.supplierOf(MemberName, customer));
+    }
+
+    private void throwIfNotEnoughStock(String title, Book book) {
+        if (book.getStock() <= 0) {
+            throw new NotEnoughBooksInStockException(BookTitle, title);
+        }
+    }
+
+    private void updateUserPoint(String customer, int point) {
+        throwIfNoSuchMember(customer)
+                .addPoint(point);
+    }
+
+    private void addNewPurchase(String title, String customer, Book book, int point) {
+        Purchase purchase = new Purchase(title, customer, 1, book.getPrice(), point);
+        repository.add(purchase);
+    }
+
+    private void updateStockWithMinusOne(Book book) {
+        book.setStock(book.getStock() - 1);
+    }
+
+    private int getPoint(Book book, String customer) {
         return memberRepository.findByUserName(customer)
                 .map(m -> getPointByMember(book, m))
-                .orElseThrow();
+                .orElseThrow(NoSuchItemException.supplierOf(MemberName, customer));
     }
 
     private int getPointByMember(Book book, Member member) {
@@ -61,13 +85,15 @@ public class PurchaseService implements PurchaseUseCase {
 
     @Override
     public List<Purchase> getPurchaseList() {
-        return repository.findAll();
+        List<Purchase> list = repository.findAll();
+        Validators.throwIfEmpty(list, Purchase.class);
+        return list;
     }
 
     @Override
     public List<Purchase> getPurchaseListByUser(String userName) {
-        return getPurchaseList().stream()
-                .filter(purchase -> purchase.getCustomer().equals(userName))
-                .toList();
+        List<Purchase> list = repository.findByCustomer(userName);
+        Validators.throwIfEmpty(list, Purchase.class);
+        return list;
     }
 }

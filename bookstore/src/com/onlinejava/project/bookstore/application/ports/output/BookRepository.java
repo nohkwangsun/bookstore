@@ -10,4 +10,8 @@ public interface BookRepository {
     void save();
 
     Optional<Book> findByTitle(String title);
+
+    boolean remove(Book book);
+
+    boolean add(Book book);
 }

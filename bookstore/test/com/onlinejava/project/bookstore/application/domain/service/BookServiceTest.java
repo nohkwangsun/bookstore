@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -21,6 +22,22 @@ class BookServiceTest {
         @Override
         public List<Book> findAll() {
             return list;
+        }
+        @Override
+        public Optional<Book> findByTitle(String title) {
+            return this.list.stream()
+                    .filter(b -> b.getTitle().equals(title))
+                    .findFirst();
+        }
+
+        @Override
+        public boolean add(Book book) {
+            return this.list.add(book);
+        }
+
+        @Override
+        public boolean remove(Book book) {
+            return this.list.remove(book);
         }
     }
 

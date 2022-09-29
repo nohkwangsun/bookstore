@@ -12,7 +12,7 @@ import java.util.Optional;
 public class FileMemberRepository extends FileRepository<Member> implements MemberRepository {
     @Override
     public List<Member> findAll() {
-        return this.list;
+        return this.list == null ? List.of() : this.list;
     }
 
     @Override
@@ -30,8 +30,8 @@ public class FileMemberRepository extends FileRepository<Member> implements Memb
     }
 
     @Override
-    public void add(Member member) {
-        this.list.add(member);
+    public boolean add(Member member) {
+        return this.list.add(member);
     }
 
     @Override

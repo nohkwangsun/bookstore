@@ -12,7 +12,7 @@ import java.util.Optional;
 public class FileBookRepository extends FileRepository<Book> implements BookRepository {
     @Override
     public List<Book> findAll() {
-        return this.list;
+        return this.list == null ? List.of() : this.list;
     }
 
     @Override
@@ -25,6 +25,16 @@ public class FileBookRepository extends FileRepository<Book> implements BookRepo
         return this.list.stream()
                 .filter(b -> b.getTitle().equals(title))
                 .findFirst();
+    }
+
+    @Override
+    public boolean remove(Book book) {
+        return this.list.remove(book);
+    }
+
+    @Override
+    public boolean add(Book book) {
+        return this.list.add(book);
     }
 
     @Override

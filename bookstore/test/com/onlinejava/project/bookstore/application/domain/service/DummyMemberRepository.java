@@ -23,8 +23,9 @@ public class DummyMemberRepository implements MemberRepository {
     }
 
     @Override
-    public void add(Member member) {
+    public boolean add(Member member) {
 
+        return false;
     }
 
     @Override
