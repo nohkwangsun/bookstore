@@ -3,7 +3,6 @@
 WORKING_DIR=$(cd $(dirname "$0")/.. && pwd)
 
 cd "${WORKING_DIR}"
-#JAVA_COMMAND="java -Dfile.encoding=UTF-8 -classpath ${WORKING_DIR}/bookstore/out com.onlinejava.project.bookstore.Main"
 JAVA_COMMAND="./gradlew --console plain run"
 
 if [ ! -x $(command -v gotty >> /dev/null) ]; then

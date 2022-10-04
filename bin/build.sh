@@ -8,7 +8,3 @@ git stash
 git pull
 
 ./gradlew clean build
-#rm -rf bookstore/out
-#find bookstore/src -name "*.java" > sources.txt
-#javac -d bookstore/out @sources.txt
-#rm sources.txt
