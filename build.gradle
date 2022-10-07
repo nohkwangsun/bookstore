@@ -1,0 +1,22 @@
+plugins {
+    id 'application'
+}
+
+repositories {
+    mavenCentral()
+}
+sourceSets.main.java.srcDirs = ['bookstore/src']
+
+run.standardInput = System.in
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.8.2'
+}
+
+application {
+    mainClass = 'com.onlinejava.project.bookstore.Main'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}

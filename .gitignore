@@ -31,3 +31,7 @@ certificate/
 
 */out/
 requirements.txt
+
+
+build/
+.gradle/

@@ -6,7 +6,7 @@ import com.onlinejava.project.bookstore.application.domain.exception.UnexpectedE
 import com.onlinejava.project.bookstore.application.domain.exception.UnknownCommandException;
 import com.onlinejava.project.bookstore.core.cli.*;
 
-import java.util.*;
+import java.util.Scanner;
 
 import static com.onlinejava.project.bookstore.core.util.ExceptionUtils.getRootCause;
 
