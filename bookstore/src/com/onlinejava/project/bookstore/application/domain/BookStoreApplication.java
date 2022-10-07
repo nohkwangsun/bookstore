@@ -46,7 +46,7 @@ public class BookStoreApplication {
         System.out.println("==============================================================");
         System.out.println("=                                                            =");
         System.out.println("=                                                            =");
-        System.out.println("=                   Welcome to Bookstore                     =");
+        System.out.println("=               Welcome to Damazon Bookstore                 =");
         System.out.println("=                                                            =");
         System.out.println("=            ------------------------------------            =");
         System.out.println("=            |                                  |            =");
