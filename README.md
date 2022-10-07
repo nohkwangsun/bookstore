@@ -1,1 +1,1 @@
-# The Damazon project
+# The Damazon Bookstore project
