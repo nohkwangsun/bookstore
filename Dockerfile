@@ -6,6 +6,10 @@ RUN apt-get update && \
     export PATH=$PATH:/usr/local/go/bin && \
     go install github.com/sorenisanerd/gotty@latest
 
+RUN apt-get install -y locales && \
+    locale-gen ko_KR.UTF-8
+ENV LC_ALL=ko_KR.UTF-8
+
 ENV GOBIN=/root/go/bin
 ENV PATH=$PATH:$GOBIN
 ENV GOTTY_CREDENTIAL="admin:bookstore1234"
@@ -17,6 +21,6 @@ RUN git clone https://github.com/nohkwangsun/bookstore.git
 WORKDIR bookstore
 RUN ./gradlew clean build
 
-CMD ["gotty", "-w", "-p", "10000", "--title-format", "Damazon", "./gradlew --console plain run"]
+CMD ["gotty", "-w", "-p", "10000", "--title-format", "Damazon", "./gradlew", "--console", "plain", "-q","run"]
 
 
