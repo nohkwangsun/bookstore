@@ -5,12 +5,12 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class DatabaseConnection {
+    private static final String url = "jdbc:h2:./database/data";
+    private static final String user = "sa";
+    private static final String password = "";
     private static Connection connection;
 
     public static synchronized Connection getConnection() {
-        String url = "jdbc:h2:./database";
-        String user = "sa";
-        String password = "";
         try {
             if (connection == null) {
                 connection = DriverManager.getConnection(url, user, password);
