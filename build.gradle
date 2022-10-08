@@ -18,7 +18,7 @@ dependencies {
 }
 
 application {
-    mainClass = 'com.onlinejava.project.bookstore.server.AdminLauncher'
+    mainClass = 'com.onlinejava.project.bookstore.admin.AdminLauncher'
 }
 
 tasks.named('test') {
