@@ -5,8 +5,6 @@ import com.onlinejava.project.bookstore.core.util.reflect.ReflectionUtils;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
-import static com.onlinejava.project.bookstore.application.domain.BookStoreApplication.scanner;
-
 public class CommandInvocationHandler implements InvocationHandler {
     private CliCommandInterface cliCommand;
 

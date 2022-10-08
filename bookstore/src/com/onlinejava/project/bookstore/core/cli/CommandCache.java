@@ -1,13 +1,10 @@
 package com.onlinejava.project.bookstore.core.cli;
 
-import com.onlinejava.project.bookstore.Main;
-import com.onlinejava.project.bookstore.application.domain.exception.BookStoreException;
 import com.onlinejava.project.bookstore.core.factory.BeanFactory;
 import com.onlinejava.project.bookstore.core.function.Functions;
 import com.onlinejava.project.bookstore.core.util.reflect.ReflectionUtils;
 
 import java.io.*;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.net.URL;
@@ -32,7 +29,7 @@ public class CommandCache {
     }
 
     public static void loadCommands() {
-        List<Class> classesInPackage = getClassesFromBasePackage(Main.BASE_PACKAGE);
+        List<Class> classesInPackage = getClassesFromBasePackage(BeanFactory.getBasePackage());
 
         Stream<CliCommandInterface> cliCommandInterfaces = newInstancesOfCliCommandInterfaces(classesInPackage);
         Stream<CliCommandInterface> annotatedCommands = newInstancesOfAnnotatedCommands(classesInPackage);

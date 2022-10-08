@@ -1,6 +1,6 @@
 package com.onlinejava.project.bookstore.core.util.validator;
 
-import com.onlinejava.project.bookstore.adapters.cli.exception.EmptyItemListException;
+import com.onlinejava.project.bookstore.core.cli.exception.EmptyItemListException;
 
 import java.util.List;
 

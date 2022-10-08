@@ -1,6 +1,6 @@
 package com.onlinejava.project.bookstore.core.util.reflect;
 
-import com.onlinejava.project.bookstore.application.domain.exception.BookStoreException;
+import com.onlinejava.project.bookstore.common.domain.exception.BookStoreException;
 import com.onlinejava.project.bookstore.core.function.Consumers;
 import com.onlinejava.project.bookstore.core.function.Functions;
 import com.onlinejava.project.bookstore.core.function.Functions.ThrowableFunction;
@@ -183,5 +183,23 @@ public class ReflectionUtils {
 
     public static Class<?> getFieldType(Object object, String fieldName) {
         return getFieldType(object.getClass(), fieldName);
+    }
+
+    public static Class<?> getLauncherClass() {
+        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+        StackTraceElement stackTraceElement = stackTrace[stackTrace.length - 1];
+        try {
+            return Class.forName(stackTraceElement.getClassName());
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static <T> T getStaticField(Class<?> launcherClass, String fieldName, Class<T> clazz) {
+        try {
+            return (T) launcherClass.getDeclaredField(fieldName).get(null);
+        } catch (IllegalAccessException | NoSuchFieldException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
