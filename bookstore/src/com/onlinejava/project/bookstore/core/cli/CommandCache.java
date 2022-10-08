@@ -49,6 +49,7 @@ public class CommandCache {
                     .filter(clazz -> clazz.isAnnotationPresent(CliCommand.class))
                     .flatMap(clazz -> Arrays.stream(clazz.getDeclaredMethods()))
                     .filter(method -> method.isAnnotationPresent(CliCommand.class))
+                    .filter(method -> !method.isAnnotationPresent(Deprecated.class))
                     .filter(method -> method.getParameterCount() == 0)
                     .map(CommandCache::methodToCliCommand);
         return annotatedCommandStream;
@@ -59,6 +60,7 @@ public class CommandCache {
                 .filter(clazz -> CliCommandInterface.class.isAssignableFrom(clazz))
                 .filter(clazz -> !clazz.isInterface())
                 .filter(clazz -> !clazz.isAnonymousClass())
+                .filter(clazz -> !clazz.isAnnotationPresent(Deprecated.class))
                 .map(Functions.unchecked(clazz -> (CliCommandInterface) clazz.getDeclaredConstructor().newInstance()));
         return cliCommandInterfaceStream;
     }

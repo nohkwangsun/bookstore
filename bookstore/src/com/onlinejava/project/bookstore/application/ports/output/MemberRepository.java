@@ -5,7 +5,7 @@ import com.onlinejava.project.bookstore.application.domain.entity.Member;
 import java.util.List;
 import java.util.Optional;
 
-public interface MemberRepository {
+public interface MemberRepository extends Repository {
     List<Member> findAll();
 
     Optional<Member> findByUserName(String userName);
@@ -13,6 +13,4 @@ public interface MemberRepository {
     List<Member> findActiveMembers();
 
     boolean add(Member member);
-
-    void save();
 }

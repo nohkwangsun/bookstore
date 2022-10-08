@@ -35,3 +35,6 @@ requirements.txt
 
 build/
 .gradle/
+
+*.mv.db
+*.trace.db

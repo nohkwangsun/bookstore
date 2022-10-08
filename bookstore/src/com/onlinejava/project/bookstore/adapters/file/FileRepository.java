@@ -21,7 +21,8 @@ import java.util.stream.Collectors;
 public abstract class FileRepository<T extends Entity> {
     protected List<T> list;
 
-    public abstract void initData();
+    public abstract void save();
+
 
     public void saveEntityToCSVFile(String fileName, Class<T> clazz, boolean hasHeader) {
         try {
