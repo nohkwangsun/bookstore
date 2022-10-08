@@ -1,7 +1,5 @@
 package com.onlinejava.project.bookstore.core.cli;
 
-import com.onlinejava.project.bookstore.application.domain.exception.BookStoreException;
-
 import java.util.regex.Pattern;
 
 public interface CliCommandInterface {

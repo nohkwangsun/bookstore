@@ -9,19 +9,26 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static com.onlinejava.project.bookstore.Main.BASE_PACKAGE;
 import static com.onlinejava.project.bookstore.core.util.reflect.ReflectionUtils.*;
 
 public final class BeanFactory {
+    public static String getBasePackage() {
+        return BASE_PACKAGE;
+    }
+
+    private static String BASE_PACKAGE = "com.onlinejava.project.bookstore";
+
     private static Map<Class, Object> beans = new ConcurrentHashMap<>();
+
     static {
+        Class<?> launcherClass = getLauncherClass();
+        BASE_PACKAGE = getStaticField(launcherClass, "BASE_PACKAGE", String.class);
         getInstance().getBeansInBasePackage().stream()
                 .map(getInstance()::findOrCreateInstance)
                 .forEach(getInstance()::injectDependency);
@@ -123,7 +130,7 @@ public final class BeanFactory {
                 .filter(this::canBeInstance)
                 .filter(clazz -> type.isAssignableFrom(clazz))
                 .findFirst()
-                .orElseThrow(()-> new RuntimeException("Can not Found the implementation of : " + type.getName()));
+                .orElseThrow(() -> new RuntimeException("Can not Found the implementation of : " + type.getName()));
     }
 
     private List<Class> getClassesInBasePackage() {

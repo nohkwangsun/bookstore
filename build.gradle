@@ -5,17 +5,20 @@ plugins {
 repositories {
     mavenCentral()
 }
-sourceSets.main.java.srcDirs = ['bookstore/src']
+sourceSets {
+    main.java.srcDirs = ['bookstore/src']
+    test.java.srcDirs = ['bookstore/test']
+}
 
 run.standardInput = System.in
 
 dependencies {
     implementation 'com.h2database:h2:2.1.214'
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.8.2'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
 }
 
 application {
-    mainClass = 'com.onlinejava.project.bookstore.Main'
+    mainClass = 'com.onlinejava.project.bookstore.server.AdminLauncher'
 }
 
 tasks.named('test') {
