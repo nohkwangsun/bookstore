@@ -57,6 +57,14 @@ public final class BeanFactory {
         return object;
     }
 
+    public <T> List<T> list(Class<T> clazz) {
+        return beans.entrySet().stream()
+                .filter(entry -> clazz.isAssignableFrom(entry.getKey()))
+                .map(Map.Entry::getValue)
+                .map(value -> (T) value)
+                .toList();
+    }
+
     private <T> boolean isInterface(Class<T> clazz) {
         return clazz.isInterface();
     }

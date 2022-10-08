@@ -5,9 +5,8 @@ import com.onlinejava.project.bookstore.application.domain.entity.Book;
 import java.util.List;
 import java.util.Optional;
 
-public interface BookRepository {
+public interface BookRepository extends Repository {
     List<Book> findAll();
-    void save();
 
     Optional<Book> findByTitle(String title);
 

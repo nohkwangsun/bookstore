@@ -79,6 +79,14 @@ public class ReflectionUtils {
         });
     }
 
+    public static <T> void invokeSetter(T object, String fieldName, Class<?> fieldType, Object value) {
+        String setterName = "set" + StringUtils.toCapitalize(fieldName);
+        try {
+            object.getClass().getDeclaredMethod(setterName, fieldType).invoke(object, value);
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     public static <T, F> F getField(T object, Field field) {
         return (F) getField(object, field.getName(), field.getType());
@@ -163,5 +171,17 @@ public class ReflectionUtils {
             }
             throw new RuntimeException(e);
         }
+    }
+
+    public static Class<?> getFieldType(Class<?> clazz, String fieldName) {
+        try {
+            return clazz.getDeclaredField(fieldName).getType();
+        } catch (NoSuchFieldException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static Class<?> getFieldType(Object object, String fieldName) {
+        return getFieldType(object.getClass(), fieldName);
     }
 }

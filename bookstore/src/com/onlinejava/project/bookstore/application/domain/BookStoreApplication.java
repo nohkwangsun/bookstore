@@ -1,6 +1,5 @@
 package com.onlinejava.project.bookstore.application.domain;
 
-import com.onlinejava.project.bookstore.adapters.file.FileDataInitializer;
 import com.onlinejava.project.bookstore.application.domain.exception.ExpectedException;
 import com.onlinejava.project.bookstore.application.domain.exception.UnexpectedException;
 import com.onlinejava.project.bookstore.application.domain.exception.UnknownCommandException;
@@ -33,7 +32,7 @@ public class BookStoreApplication {
     }
 
     public void initialize() {
-        FileDataInitializer.initializeRepositoryData();
+        RepositoryInitializer.init();
         CommandCache.loadCommands();
     }
 
