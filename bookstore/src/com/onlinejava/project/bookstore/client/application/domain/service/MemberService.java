@@ -1,9 +1,9 @@
 package com.onlinejava.project.bookstore.client.application.domain.service;
 
 import com.onlinejava.project.bookstore.client.application.domain.exception.NoSuchItemException;
-import com.onlinejava.project.bookstore.client.application.ports.input.MemberUseCase;
-import com.onlinejava.project.bookstore.client.application.ports.output.MemberRepository;
-import com.onlinejava.project.bookstore.client.application.ports.output.PurchaseRepository;
+import com.onlinejava.project.bookstore.client.application.ports.in.MemberUseCase;
+import com.onlinejava.project.bookstore.client.application.ports.out.MemberRepository;
+import com.onlinejava.project.bookstore.client.application.ports.out.PurchaseRepository;
 import com.onlinejava.project.bookstore.common.domain.entity.Member;
 import com.onlinejava.project.bookstore.core.factory.Bean;
 import com.onlinejava.project.bookstore.core.factory.Inject;

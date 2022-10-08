@@ -1,6 +1,6 @@
 package com.onlinejava.project.bookstore.admin.application.domain;
 
-import com.onlinejava.project.bookstore.admin.adapters.cli.BookCommands;
+import com.onlinejava.project.bookstore.admin.adapters.in.cli.BookCommands;
 import com.onlinejava.project.bookstore.admin.application.domain.service.BookService;
 import com.onlinejava.project.bookstore.admin.application.ports.input.BookUseCase;
 import com.onlinejava.project.bookstore.admin.application.ports.output.BookRepository;

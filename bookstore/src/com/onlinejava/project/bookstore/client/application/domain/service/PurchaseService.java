@@ -2,10 +2,10 @@ package com.onlinejava.project.bookstore.client.application.domain.service;
 
 import com.onlinejava.project.bookstore.client.application.domain.exception.NoSuchItemException;
 import com.onlinejava.project.bookstore.client.application.domain.exception.NotEnoughBooksInStockException;
-import com.onlinejava.project.bookstore.client.application.ports.input.PurchaseUseCase;
-import com.onlinejava.project.bookstore.client.application.ports.output.BookRepository;
-import com.onlinejava.project.bookstore.client.application.ports.output.MemberRepository;
-import com.onlinejava.project.bookstore.client.application.ports.output.PurchaseRepository;
+import com.onlinejava.project.bookstore.client.application.ports.in.PurchaseUseCase;
+import com.onlinejava.project.bookstore.client.application.ports.out.BookRepository;
+import com.onlinejava.project.bookstore.client.application.ports.out.MemberRepository;
+import com.onlinejava.project.bookstore.client.application.ports.out.PurchaseRepository;
 import com.onlinejava.project.bookstore.common.domain.entity.Book;
 import com.onlinejava.project.bookstore.common.domain.entity.Member;
 import com.onlinejava.project.bookstore.common.domain.entity.Purchase;

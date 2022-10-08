@@ -1,6 +1,6 @@
 package com.onlinejava.project.bookstore.admin.application.domain.service;
 
-import com.onlinejava.project.bookstore.admin.adapters.file.FileMemberRepository;
+import com.onlinejava.project.bookstore.admin.adapters.out.file.FileMemberRepository;
 import com.onlinejava.project.bookstore.common.domain.entity.Grade;
 import com.onlinejava.project.bookstore.common.domain.entity.Member;
 import com.onlinejava.project.bookstore.common.domain.entity.Purchase;

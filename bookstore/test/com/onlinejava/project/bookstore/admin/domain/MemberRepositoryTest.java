@@ -2,7 +2,7 @@ package com.onlinejava.project.bookstore.domain;
 
 import com.onlinejava.project.bookstore.common.domain.entity.Grade;
 import com.onlinejava.project.bookstore.common.domain.entity.Member;
-import com.onlinejava.project.bookstore.admin.adapters.file.FileMemberRepository;
+import com.onlinejava.project.bookstore.admin.adapters.out.file.FileMemberRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
